@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MenJinServer", "MenJinServer\MenJinServer.csproj", "{6B919FF6-414A-4737-B250-A9B0EB6595F8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MenJinWinform", "MenJinWinform\MenJinWinform.csproj", "{3CF11F08-A981-4739-A729-A8C1E2FF4F5D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6B919FF6-414A-4737-B250-A9B0EB6595F8} = {6B919FF6-414A-4737-B250-A9B0EB6595F8}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MenJinService", "MenJinService\MenJinService.csproj", "{FACCB42B-BF32-4072-939D-5ECFA8F48F8F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6B919FF6-414A-4737-B250-A9B0EB6595F8} = {6B919FF6-414A-4737-B250-A9B0EB6595F8}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6B919FF6-414A-4737-B250-A9B0EB6595F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B919FF6-414A-4737-B250-A9B0EB6595F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B919FF6-414A-4737-B250-A9B0EB6595F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B919FF6-414A-4737-B250-A9B0EB6595F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CF11F08-A981-4739-A729-A8C1E2FF4F5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CF11F08-A981-4739-A729-A8C1E2FF4F5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CF11F08-A981-4739-A729-A8C1E2FF4F5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CF11F08-A981-4739-A729-A8C1E2FF4F5D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FACCB42B-BF32-4072-939D-5ECFA8F48F8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FACCB42B-BF32-4072-939D-5ECFA8F48F8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FACCB42B-BF32-4072-939D-5ECFA8F48F8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FACCB42B-BF32-4072-939D-5ECFA8F48F8F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
