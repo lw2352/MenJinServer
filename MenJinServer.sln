@@ -4,11 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MenJinWinform", "MenJinWinform\MenJinWinform.csproj", "{3CF11F08-A981-4739-A729-A8C1E2FF4F5D}"
-	ProjectSection(ProjectDependencies) = postProject
-		{FACCB42B-BF32-4072-939D-5ECFA8F48F8F} = {FACCB42B-BF32-4072-939D-5ECFA8F48F8F}
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MenJinService", "MenJinService\MenJinService.csproj", "{FACCB42B-BF32-4072-939D-5ECFA8F48F8F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,10 +15,6 @@ Global
 		{3CF11F08-A981-4739-A729-A8C1E2FF4F5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3CF11F08-A981-4739-A729-A8C1E2FF4F5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3CF11F08-A981-4739-A729-A8C1E2FF4F5D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FACCB42B-BF32-4072-939D-5ECFA8F48F8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FACCB42B-BF32-4072-939D-5ECFA8F48F8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FACCB42B-BF32-4072-939D-5ECFA8F48F8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FACCB42B-BF32-4072-939D-5ECFA8F48F8F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
