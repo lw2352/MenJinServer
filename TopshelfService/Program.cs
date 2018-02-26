@@ -83,6 +83,8 @@ namespace TopshelfService
         public static readonly log4net.ILog log =
             log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        string ConfigIp = System.Configuration.ConfigurationManager.AppSettings["ServerIP"];
+
         public TownCrier()
         {
             _timer = new Timer(5000) { AutoReset = true };
