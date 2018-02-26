@@ -85,7 +85,7 @@ namespace TopshelfService
 
         public TownCrier()
         {
-            _timer = new Timer(1000) { AutoReset = true };
+            _timer = new Timer(5000) { AutoReset = true };
             _timer.Elapsed += (sender, eventArgs) =>
             {
                 string str = "It is {0} and all is well" +　DateTime.Now.ToString();
