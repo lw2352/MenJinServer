@@ -26,7 +26,6 @@ namespace MenJinService
             var logCfg = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "log4netMySql.config");
             XmlConfigurator.ConfigureAndWatch(logCfg);
 
-
             HostFactory.Run(x =>
             {
                 //使用 TownCrier 类，配置服务事件  

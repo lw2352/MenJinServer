@@ -52,8 +52,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CmdClass.cs" />
+    <Compile Include="DataItem.cs" />
     <Compile Include="DbClass.cs" />
     <Compile Include="MainUdpClass.cs" />
+    <Compile Include="MySQLDB.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UtilClass.cs" />
