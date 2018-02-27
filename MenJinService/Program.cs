@@ -9,7 +9,7 @@ using System.Timers;
 using Topshelf;
 
 
-namespace TopshelfService
+namespace MenJinService
 {
     class Program
     {
@@ -30,10 +30,10 @@ namespace TopshelfService
             HostFactory.Run(x =>
             {
                 //使用 TownCrier 类，配置服务事件  
-                x.Service<TownCrier>(s =>
+                x.Service<MainUdpClass>(s =>
                 {
                     //使用自定义的服务  
-                    s.ConstructUsing(name => new TownCrier());
+                    s.ConstructUsing(name => new MainUdpClass());
                     //服务启动事件  
                     s.WhenStarted(tc => tc.Start());
                     //服务停止后事件  
@@ -61,9 +61,9 @@ namespace TopshelfService
 
 
                 #region 服务信息  
-                x.SetDescription("111 服务 111服务的描述");//描述  
-                x.SetDisplayName("111 显示名");//显示名称  
-                x.SetServiceName("111服务");//服务名称  
+                x.SetDescription("威派门禁服务");//描述  
+                x.SetDisplayName("威派门禁服务");//显示名称  
+                x.SetServiceName("威派门禁服务");//服务名称  
                 #endregion
 
 
@@ -72,44 +72,6 @@ namespace TopshelfService
         }//end of main
     }
 
-
-
-
-    //服务调用的类，其中的函数对应服务中的事件，如启动事件、暂停事件、恢复事件、继续运行事件等  
-    public class TownCrier
-    {
-        readonly Timer _timer;
-
-        public static readonly log4net.ILog log =
-            log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
-        string ConfigIp = System.Configuration.ConfigurationManager.AppSettings["ServerIP"];
-
-        public TownCrier()
-        {
-            _timer = new Timer(5000) { AutoReset = true };
-            _timer.Elapsed += (sender, eventArgs) =>
-            {
-                string str = "It is {0} and all is well" +　DateTime.Now.ToString();
-                Console.WriteLine(str);
-                log.Info(str);
-            };
-        }
-        public void Start() { _timer.Start(); Msg("已启动"); }
-        public void Stop() { _timer.Stop(); Msg("已停止"); }
-        public void Continued() { Msg("继续运行"); }
-        public void Paused() { Msg("已暂停"); }
-        public void Shutdown() { Msg("已卸载"); }
-
-
-        public void Msg(string msg)
-        {
-            /*ServiceEvents.Msg(msg);
-            if (msg != null)
-                msg.All(x => { Console.WriteLine(x); return true; });*/
-            Console.WriteLine(msg);
-        }
-    }
 
 }
 
