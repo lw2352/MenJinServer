@@ -21,7 +21,7 @@ namespace MenJinService
         private static readonly log4net.ILog log =
             log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private static Hex2string[] hex2String = new Hex2string[256];
+        public static Hex2string[] hex2String = new Hex2string[256];
 
         /// <summary>
         /// debug模式下会打印到控制台，release输出到数据库

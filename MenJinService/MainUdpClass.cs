@@ -21,7 +21,7 @@ namespace MenJinService
         private int ServerPort = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["ServerPort"]);
 
         private static Hashtable htClient = new Hashtable(); //strID--DataItem
-        //TODO:加上命令队列queue
+
         private static Socket ServerSocket;
 
         private int checkRecDataQueueTimeInterval = 10; // 检查接收数据包队列时间休息间隔(ms)
@@ -58,7 +58,11 @@ namespace MenJinService
 
 #endregion
 
-        private bool openServer()
+        /// <summary>
+        /// 开启socket服务
+        /// </summary>
+        /// <returns></returns>
+        private bool OpenServer()
         {
             try
             {
@@ -92,38 +96,29 @@ namespace MenJinService
             }
         }
 
-        //关闭socket测试ok
-        public void closeServer()
+        /// <summary>
+        /// 关闭socket
+        /// </summary>
+        public void CloseServer()
         {
             ServerSocket.Dispose();
         }
 
 
-        public void send()
-        {
-            //sendData(myRemote);
-        }
-
-        //发送数据
-        private void sendData(EndPoint remote)
-        {
-            //TODO:remote换成广播节点，传id号进来
-            ServerSocket.BeginSendTo(data, 0, data.Length, SocketFlags.None, remote, new AsyncCallback(OnSend), ServerSocket);
-        }
-
-        
-
-        //接收数据ok
+        /// <summary>
+        /// 接收数据
+        /// </summary>
+        /// <param name="ar"></param>
         private void OnReceive(IAsyncResult ar)
         {
             int len = -1;
             try
             {
-                EndPoint Remote = (EndPoint)(ar.AsyncState);
-                len = ServerSocket.EndReceiveFrom(ar, ref Remote);
+                EndPoint remote = (EndPoint)(ar.AsyncState);
+                len = ServerSocket.EndReceiveFrom(ar, ref remote);
 
                 //继续接收数据
-                ServerSocket.BeginReceiveFrom(data, 0, data.Length, SocketFlags.None, ref Remote, new AsyncCallback(OnReceive), Remote);
+                ServerSocket.BeginReceiveFrom(data, 0, data.Length, SocketFlags.None, ref remote, new AsyncCallback(OnReceive), remote);
             }
             catch (Exception ex)
             {
@@ -131,22 +126,7 @@ namespace MenJinService
             }
         }
 
-        /// <summary>
-        /// 异步发送数据
-        /// </summary>
-        /// <param name="ar">IAsyncResult</param>
-        private void OnSend(IAsyncResult ar)
-        {
-            try
-            {
-                Socket client = (Socket)ar.AsyncState;
-                client.EndSendTo(ar);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-        }
+        
 
 
     }
