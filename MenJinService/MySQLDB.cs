@@ -11,7 +11,7 @@ public class  MySQLDB
 {
     public static log4net.ILog Log = log4net.LogManager.GetLogger(typeof(MySQLDB));
 
-    private static string m_strConn = null;
+    public static string m_strConn { get; set; }
     //   public static OperationTxT oper = new OperationTxT(@"D:\\ShopServiceLog.txt");
     public static MySqlConnection conn = null;
     public static MySQLDB MySql;
@@ -20,9 +20,6 @@ public class  MySQLDB
         //m_strConn = ConfigurationManager.ConnectionStrings["mysql1"].ToString();
         conn = new MySqlConnection(m_strConn);
     }*/
-    //add 7-23
-    public static string strDbConn{get; set;}
-
 
     public static void InitDb()
     {

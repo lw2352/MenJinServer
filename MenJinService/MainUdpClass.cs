@@ -52,12 +52,28 @@ namespace MenJinService
         public void Start()
         {
             UtilClass.initUtil();
-            UtilClass.writeLog("已启动");
+            MySQLDB.m_strConn = System.Configuration.ConfigurationManager.AppSettings["ServerDB"];
+
+            if (OpenServer() == true)
+            {
+                UtilClass.writeLog("启动成功");
+            }
+            else
+            {
+                UtilClass.writeLog("启动失败");
+            }
         }
 
         public void Stop()
         {
-            UtilClass.writeLog("已停止");
+            if (CloseServer() == true)
+            {
+                UtilClass.writeLog("停止成功");
+            }
+            else
+            {
+                UtilClass.writeLog("停止失败");
+            }
         }
 
         public void Continued() { UtilClass.writeLog("继续运行"); }
@@ -87,13 +103,13 @@ namespace MenJinService
                 ServerSocket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref myRemote, new AsyncCallback(OnReceive), myRemote);
 
                 //接收数据包处理线程
-                /*if (!ThreadPool.QueueUserWorkItem(CheckRecDataQueue))
+                if (!ThreadPool.QueueUserWorkItem(CheckRecDataQueue))
                     return false;
                 //发送数据包处理线程
                 if (!ThreadPool.QueueUserWorkItem(CheckSendDataQueue))
                     return false;
                 if (!ThreadPool.QueueUserWorkItem(CheckDataBaseQueue))
-                    return false;*/
+                    return false;
 
                 IsServerOpen = true;
 
@@ -109,10 +125,29 @@ namespace MenJinService
         /// <summary>
         /// 关闭socket
         /// </summary>
-        public void CloseServer()
+        public bool CloseServer()
         {
-            ServerSocket.Dispose();
-            IsServerOpen = false;
+            try
+            {
+                IsServerOpen = false;
+                
+                checkRecDataQueueResetEvent.WaitOne();
+                checkSendDataQueueResetEvent.WaitOne();
+                CheckDataBaseQueueResetEvent.WaitOne();
+
+                ServerSocket.Dispose();
+
+                htClient.Clear();
+
+                GC.SuppressFinalize(this);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+            
         }
 
 
@@ -145,6 +180,7 @@ namespace MenJinService
                             maxHistoryPackage); //初始化dataItem
                         htClient.Add(strID, dataItem);
                         //TODO:把设备信息存入数据库，创建记录表
+                        DbClass.addsensorinfo(dataItem.strID, dataItem.HeartTime, dataItem.status.ToString());
                     }
                     else
                     {
@@ -225,7 +261,7 @@ namespace MenJinService
             {
                 try
                 {
-
+                    
                 }
                 catch (Exception ex)
                 {
@@ -234,6 +270,8 @@ namespace MenJinService
 
                 Thread.Sleep(checkDataBaseQueueTimeInterval);
             }
+
+            CheckDataBaseQueueResetEvent.Set();
         }
 
         #endregion
