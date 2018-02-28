@@ -11,12 +11,12 @@ namespace MenJinService
     class DataItem
     {
         public string strID;//设备ID
-        public byte[] buffer;//缓存
         public bool status;//在线状态
         public Socket socket;//实际共用serverSocket，用来发送数据
         public EndPoint remote;//客户端节点，实际用广播包
         public DateTime HeartTime; //上一次心跳包发上来的时间
-        public byte[] byteAllData; //所有数据,存放历史记录
+        public byte[] updateData; //所有数据,存放历史记录
+        public int maxHistoryPackage;//刷卡记录的最大包数
         public Queue<byte[]> recDataQueue = new Queue<byte[]>();//数据接收队列；queue是对象的先进先出集合
         public Queue<byte[]> sendDataQueue = new Queue<byte[]>();//数据发送队列
         private delegate void AsyncAnalyzeData(byte[] data);
@@ -24,19 +24,16 @@ namespace MenJinService
         /// <summary>
         /// 初始化DataItem
         /// </summary>
-        /// <param name="clientsocket"></param>
-        /// <param name="bufferLength"></param>
-        /// <param name="address"></param>
-        /// <param name="ID"></param>
-        /// <param name="dataLength"></param>
-        public void InitDataItem(Socket clientsocket, int bufferLength, string id, int byteAllDataLength)
+        public void Init(Socket serverSocket, string id, int updateDataLength, EndPoint broadcastEndPoint, int maxNum)
         {
-            socket = clientsocket;
-            buffer = new byte[bufferLength];
+            socket = serverSocket;
             strID = id;
             status = true;
-            byteAllData = new byte[byteAllDataLength];
+            updateData = new byte[updateDataLength];
             HeartTime = DateTime.Now;
+
+            remote = broadcastEndPoint;
+            maxHistoryPackage = maxNum;
         }
 
         public void HandleData()
