@@ -137,7 +137,7 @@ namespace MenJinService
                             UtilClass.hex2String[buffer[5]].str +
                             UtilClass.hex2String[buffer[6]].str;
 
-                    //判断哈希表中是否存在当前ID
+                    //判断哈希表中是否存在当前ID，不存在则创建，存在则把数据加入队列
                     if (htClient.ContainsKey(strID) == false)
                     {
                         DataItem dataItem = new DataItem();
@@ -197,11 +197,21 @@ namespace MenJinService
             {
                 try
                 {
+                    foreach (DataItem dataItem in htClient.Values)
+                    {
+                        dataItem.SendData();
+                        if (CheckTimeout(dataItem.HeartTime, maxTimeOut))
+                        {
+                            dataItem.status = false;
+                            //TODO:更新数据库信息
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine(ex);
                 }
+
                 Thread.Sleep(checkSendDataQueueTimeInterval); //当前数据处理线程休眠一段时间
             }
             checkSendDataQueueResetEvent.Set();
@@ -215,6 +225,7 @@ namespace MenJinService
             {
                 try
                 {
+
                 }
                 catch (Exception ex)
                 {
@@ -225,10 +236,19 @@ namespace MenJinService
             }
         }
 
-
-
         #endregion
 
+        public bool CheckTimeout(DateTime heartTime, int maxSessionTimeout)
+        {
+            TimeSpan ts = DateTime.Now.Subtract(heartTime);
+            int elapsedSecond = Math.Abs((int)ts.TotalSeconds);
+            //2分钟在数据库标注，3分钟则断开
+            if (elapsedSecond > maxSessionTimeout) // 超时，则准备断开连接
+            {
+                return true;
+            }
+            else return false;
+        }
 
 
 
