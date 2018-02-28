@@ -61,6 +61,7 @@ namespace MenJinService
         //处理数据和写入数据库
         public void AnalyzeData(byte[] datagramBytes)
         {
+            Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "硬件"+strID+"收到数据："+UtilClass.byteToHexStr(datagramBytes));
         }
 
         /// <summary>

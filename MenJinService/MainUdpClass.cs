@@ -238,7 +238,7 @@ namespace MenJinService
                         dataItem.SendData();
                         if (CheckTimeout(dataItem.HeartTime, maxTimeOut))
                         {
-                            dataItem.status = false;
+                            //dataItem.status = false;
                             //TODO:更新数据库信息
                         }
                     }
