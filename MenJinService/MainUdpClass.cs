@@ -261,7 +261,14 @@ namespace MenJinService
             {
                 try
                 {
-                    
+                    /*1.先读取tcommand表中所有deviceID的cmdName字段
+                     * 2.“-1”表示无命令，其余值表示命令名称“name”
+                     * 3.根据name来读取对应ID的operation和data
+                     * 4.构造命令
+                     * 5.把命令加入发送队列
+                     * 6.如果是升级文件的路径，则需要读取文件内容并存入dataitem，设置标志位
+                     * 7.如果是设置卡号，需要在dataitem设置大数组，加标志位并分多包发送。
+                     * */
                 }
                 catch (Exception ex)
                 {
