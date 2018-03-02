@@ -12,7 +12,7 @@ namespace MenJinService
     /// </summary>
     class DbClass
     {
-        public static string addsensorinfo(string sensorintdeviceID, DateTime sensorloginTime, string sensorStatus)
+        public static string addsensorinfo(string sensorintdeviceID, string sensorloginTime, string sensorStatus)
         {
             MySQLDB.InitDb();
             string sensorid = "0";
@@ -20,12 +20,12 @@ namespace MenJinService
             try
             {
                 DataSet ds1 = new DataSet("tdevice");
-                string strSQL1 = "SELECT deviceID FROM tdevice where deviceID="+ "\"" + sensorintdeviceID+"\"";
+                string strSQL1 = "SELECT deviceID FROM tdevice where deviceID=" + "\"" + sensorintdeviceID + "\"";
                 ds1 = MySQLDB.SelectDataSet(strSQL1, null);
                 if (ds1 != null)
                 {
                     if (ds1.Tables[0].Rows.Count > 0)
-                    // 有数据集
+                        // 有数据集
                     {
                         sensorid = ds1.Tables[0].Rows[0][0].ToString();
 
@@ -51,7 +51,7 @@ namespace MenJinService
                 parmss = new MySqlParameter[]
                 {
                     new MySqlParameter("?sensorintdeviceID", MySqlDbType.VarChar),
-                    new MySqlParameter("?sensorloginTime", MySqlDbType.DateTime),
+                    new MySqlParameter("?sensorloginTime", MySqlDbType.VarChar),
                     new MySqlParameter("?sensorStatus", MySqlDbType.VarChar)
                 };
                 parmss[0].Value = sensorintdeviceID;
@@ -158,6 +158,49 @@ namespace MenJinService
                 return "fail";
             }
         }
+
+        /// <summary>
+        /// 读取命令,返回二维数组
+        /// </summary>
+        public static string[,] readCmd()
+        {
+            MySQLDB.InitDb();
+            string[,] ret;
+            //从数据库中查找当前ID是否存在
+            try
+            {
+                DataSet ds1 = new DataSet("tcommand");
+                string strSQL1 =
+                    "SELECT * FROM tcommand where cmdName!='-1'";
+                ds1 = MySQLDB.SelectDataSet(strSQL1, null);
+                if (ds1 != null)
+                {
+                    // 有数据集
+                    int count = ds1.Tables[0].Rows.Count;
+                    if (count > 0)
+                    {
+                        ret = new string[count, 4];
+                        for (int i = 0; i < count; i++)
+                        {
+                            ret[i, 0] = ds1.Tables[0].Rows[i]["deviceID"].ToString();
+                            ret[i, 1] = ds1.Tables[0].Rows[i]["cmdName"].ToString();
+                            ret[i, 2] = ds1.Tables[0].Rows[i]["operation"].ToString();
+                            ret[i, 3] = ds1.Tables[0].Rows[i]["data"].ToString();
+                        }
+
+                        return ret;
+                    }
+                    else return null;
+                }
+                else return null;
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
 
     }
 }

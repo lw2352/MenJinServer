@@ -11,6 +11,7 @@ namespace MenJinService
     class DataItem
     {
         public string strID;//设备ID
+        public byte[] byteID;
         public bool status;//在线状态
         public Socket socket;//实际共用serverSocket，用来发送数据
         public EndPoint remote;//客户端节点，实际用广播包
@@ -24,10 +25,11 @@ namespace MenJinService
         /// <summary>
         /// 初始化DataItem
         /// </summary>
-        public void Init(Socket serverSocket, string id, int updateDataLength, EndPoint broadcastEndPoint, int maxNum)
+        public void Init(Socket serverSocket, byte[] id, string strid, int updateDataLength, EndPoint broadcastEndPoint, int maxNum)
         {
             socket = serverSocket;
-            strID = id;
+            strID = strid;
+            byteID = id;
             status = true;
             updateData = new byte[updateDataLength];
             HeartTime = DateTime.Now;
@@ -61,6 +63,26 @@ namespace MenJinService
         //处理数据和写入数据库
         public void AnalyzeData(byte[] datagramBytes)
         {
+            string msg;
+            try
+            {
+                switch (datagramBytes[2])
+                {
+                    case 0x00:
+                        status = true;
+                        HeartTime = DateTime.Now;
+                        DbClass.UpdateSensorInfo(strID, "lastLoginTime", HeartTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                        break;
+
+                    default:
+                        break;
+                        
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
             Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "硬件"+strID+"收到数据："+UtilClass.byteToHexStr(datagramBytes));
         }
 
@@ -73,11 +95,9 @@ namespace MenJinService
             try
             {
                 socket.BeginSendTo(cmd, 0, cmd.Length, SocketFlags.None, remote, new AsyncCallback(OnSend), this);
-
             }
             catch (Exception ex)
             {
-                //socket无效，发送命令失败
                 Console.WriteLine(ex);
             }
         }

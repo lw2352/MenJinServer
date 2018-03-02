@@ -45,14 +45,23 @@ namespace MenJinService
 
         private ManualResetEvent CheckDataBaseQueueResetEvent = new ManualResetEvent(true);
 
-#region topshelf服务会调用的函数
+        /// <summary>
+        /// 初始化
+        /// </summary>
+        public void serviceInit()
+        {
+            UtilClass.utilInit();
+            //byte[] a = UtilClass.hexStrToByte("789132");
+            MySQLDB.m_strConn = System.Configuration.ConfigurationManager.AppSettings["ServerDB"];
+        }
+
+        #region topshelf服务会调用的函数
         /// <summary>
         /// 服务开始，进行初始化
         /// </summary>
         public void Start()
         {
-            UtilClass.initUtil();
-            MySQLDB.m_strConn = System.Configuration.ConfigurationManager.AppSettings["ServerDB"];
+            serviceInit();
 
             if (OpenServer() == true)
             {
@@ -159,6 +168,7 @@ namespace MenJinService
         {
             int len = -1;
             string strID;
+            byte[] id = new byte[4];
             try
             {
                 EndPoint remote = (EndPoint)(ar.AsyncState);
@@ -167,20 +177,18 @@ namespace MenJinService
                 //报文格式过滤
                 if (buffer[0] == 0xA5 && buffer[1] == 0xA5 && buffer[len - 2] == 0x5A && buffer[len - 1] == 0x5A)
                 {
-                    strID = UtilClass.hex2String[buffer[3]].str +
-                            UtilClass.hex2String[buffer[4]].str +
-                            UtilClass.hex2String[buffer[5]].str +
-                            UtilClass.hex2String[buffer[6]].str;
+                    Array.Copy(buffer, 3, id, 0, 4);
+                    strID = UtilClass.byteToHexStr(id);
 
                     //判断哈希表中是否存在当前ID，不存在则创建，存在则把数据加入队列
                     if (htClient.ContainsKey(strID) == false)
                     {
                         DataItem dataItem = new DataItem();
-                        dataItem.Init(ServerSocket, strID, updateDataLength, broadcastRemote,
+                        dataItem.Init(ServerSocket, id, strID, updateDataLength, broadcastRemote,
                             maxHistoryPackage); //初始化dataItem
                         htClient.Add(strID, dataItem);
                         //TODO:把设备信息存入数据库，创建记录表
-                        DbClass.addsensorinfo(dataItem.strID, dataItem.HeartTime, dataItem.status.ToString());
+                        DbClass.addsensorinfo(strID, dataItem.HeartTime.ToString("yyyy-MM-dd HH:mm:ss"), dataItem.status.ToString());
                     }
                     else
                     {
@@ -238,8 +246,9 @@ namespace MenJinService
                         dataItem.SendData();
                         if (CheckTimeout(dataItem.HeartTime, maxTimeOut))
                         {
-                            //dataItem.status = false;
-                            //TODO:更新数据库信息
+                            dataItem.status = false;
+                            //更新数据库信息
+                            DbClass.UpdateSensorInfo(dataItem.strID, "status", dataItem.status.ToString());
                         }
                     }
                 }
@@ -269,6 +278,12 @@ namespace MenJinService
                      * 6.如果是升级文件的路径，则需要读取文件内容并存入dataitem，设置标志位
                      * 7.如果是设置卡号，需要在dataitem设置大数组，加标志位并分多包发送。
                      * */
+                    string[,] cmdStrings = DbClass.readCmd();
+                    for(int i=0;i<cmdStrings.Length;i++)
+                    {
+                        DataItem dataItem = (DataItem) htClient[cmdStrings[i, 0]];
+                        dataItem.sendDataQueue.Enqueue(CmdClass.makeCommand(cmdStrings[i,0], cmdStrings[i, 1], cmdStrings[i, 2], dataItem.byteID));
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -287,8 +302,8 @@ namespace MenJinService
         {
             TimeSpan ts = DateTime.Now.Subtract(heartTime);
             int elapsedSecond = Math.Abs((int)ts.TotalSeconds);
-            //2分钟在数据库标注，3分钟则断开
-            if (elapsedSecond > maxSessionTimeout) // 超时，则准备断开连接
+            //1分钟在数据库标注
+            if (elapsedSecond > maxSessionTimeout)
             {
                 return true;
             }
