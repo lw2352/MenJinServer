@@ -7,13 +7,29 @@ using System.Text;
 
 namespace MenJinService
 {
+    //历史结构体
+    struct History
+    {
+        public bool IsNeedHistory;//是否需要升级
+        public int currentNum;
+    };
+    //升级结构体
+    struct Update
+    {
+        public bool IsNeedUpdate;//是否需要升级
+        public int currentNum;
+    };
+
     //设备类
     class DataItem
     {
         public string strID;//设备ID
         public byte[] byteID;
         public bool status;//在线状态
-        public Socket socket;//实际共用serverSocket，用来发送数据
+        public History tHistory;
+        public Update tUpdate;
+
+        public Socket socket;//实际共用SendSocket，用来发送数据
         public EndPoint remote;//客户端节点，实际用广播包
         public DateTime HeartTime; //上一次心跳包发上来的时间
         public byte[] updateData; //所有数据,存放历史记录
@@ -36,6 +52,11 @@ namespace MenJinService
 
             remote = broadcastEndPoint;
             maxHistoryPackage = maxNum;
+            //other
+            tHistory.IsNeedHistory = false;
+            tHistory.currentNum = 0;
+            tUpdate.IsNeedUpdate = false;
+            tUpdate.currentNum = 0;
         }
 
         public void HandleData()
@@ -57,6 +78,7 @@ namespace MenJinService
             {
                 byte[] datagramBytes = sendDataQueue.Dequeue(); //读取 Queue<T> 开始处的对象并移除
                 SendCmd(datagramBytes);
+                Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "硬件" + strID + "发送数据：" + UtilClass.byteToHexStr(datagramBytes));
             }
         }
 
@@ -74,9 +96,29 @@ namespace MenJinService
                         DbClass.UpdateSensorInfo(strID, "lastLoginTime", HeartTime.ToString("yyyy-MM-dd HH:mm:ss"));
                         break;
 
-                    default:
+                    case 0x23:
+                        if (tHistory.IsNeedHistory == true)
+                        {
+                            tHistory.currentNum++;
+                            //解析数据
+                            for (int i = 0; i < 1024; i++)
+                            {
+
+                            }
+                        }
                         break;
-                        
+
+                    default:
+                        break;                        
+                }
+
+                if (tHistory.IsNeedHistory == true)
+                {
+                    SendCmd(SetHisCmd(tHistory.currentNum));
+                }
+                if (tUpdate.IsNeedUpdate == true)
+                {
+                    SendCmd(SetUpdateCmd(datagramBytes));
                 }
             }
             catch (Exception e)
@@ -94,7 +136,7 @@ namespace MenJinService
         {
             try
             {
-                socket.BeginSendTo(cmd, 0, cmd.Length, SocketFlags.None, remote, new AsyncCallback(OnSend), this);
+                socket.BeginSendTo(cmd, 0, cmd.Length, SocketFlags.None, remote, new AsyncCallback(OnSend), socket);
             }
             catch (Exception ex)
             {
@@ -117,6 +159,46 @@ namespace MenJinService
             {
                 Console.WriteLine(ex);
             }
+        }
+
+        private byte[] SetHisCmd(int bulkCount)
+        {
+            /***************************************************************************7-读写位*8，9第几包**10-数据位*************************************/
+            byte[] Cmd = { 0xA5, 0xA5, 0x23, byteID[0], byteID[1], byteID[2], byteID[3], 0x00, 0x00, 0x00, 0x00, 0xFF, 0x5A, 0x5A };
+            byte[] bytesbulkCount = new byte[2];
+            bytesbulkCount = intToBytes(bulkCount);
+
+            Cmd[8] = bytesbulkCount[0];
+            Cmd[9] = bytesbulkCount[1];
+
+            return (Cmd);
+        }
+
+        private byte[] SetUpdateCmd(byte[] data)
+        {
+            /***************************************************************************7-读写位*8，9第几包**10-数据位*************************************/
+            byte[] Cmd = { 0xA5, 0xA5, 0x23, byteID[0], byteID[1], byteID[2], byteID[3], 0x00, 0x00, 0x00, 0x00, 0xFF, 0x5A, 0x5A };
+            byte[] bytesbulkCount = new byte[2];
+            //bytesbulkCount = intToBytes(bulkCount);
+
+            Cmd[8] = bytesbulkCount[0];
+            Cmd[9] = bytesbulkCount[1];
+
+            return (Cmd);
+        }
+
+        /// <summary>
+        /// 将int数值转换为占byte数组
+        /// </summary>
+        /// <param name="value">int</param>
+        /// <returns>byte[]</returns>
+        private byte[] intToBytes(int value)
+        {
+            byte[] src = new byte[2];
+
+            src[0] = (byte)((value >> 8) & 0xFF);
+            src[1] = (byte)(value & 0xFF);
+            return src;
         }
 
     }

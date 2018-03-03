@@ -27,6 +27,10 @@ namespace MenJinService
 
         public static byte[] makeCommand(string cmdFlag, string rw, string data, byte[] mcuID)
         {
+            if (cmdFlag == null || rw == null || data == null || mcuID == null || cmdFlag == "-1" || rw == "-1" || data == "-1")
+            {
+                return null;
+            }
             byte len = (byte)(data.Length / 2);
             byte[] buf = new byte[len+13];
             byte[] byteData = UtilClass.hexStrToByte(data);
@@ -35,12 +39,17 @@ namespace MenJinService
 
             buf[0] = 0xA5;
             buf[1] = 0xA5;
-            buf[2] = (byte)htCmdNum[cmdFlag];
+            if (!htCmdNum.ContainsKey(cmdFlag) || !htCmdNum.ContainsKey(rw))
+            {
+                return null;
+            }
+
+            buf[2] = Convert.ToByte(htCmdNum[cmdFlag]);
             buf[3] = mcuID[0];
             buf[4] = mcuID[1];
             buf[5] = mcuID[2];
             buf[6] = mcuID[3];
-            buf[7] = (byte)htCmdNum[rw];
+            buf[7] = Convert.ToByte(htCmdNum[rw]);
             buf[8] = (byte)(len >> 8);
             buf[9] = (byte)(len & 0xFF);
 

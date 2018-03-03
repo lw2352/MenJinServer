@@ -22,12 +22,13 @@ namespace MenJinService
 
         private static Hashtable htClient = new Hashtable(); //strID--DataItem
 
-        private static Socket ServerSocket;
+        private static Socket ServerSocket;//用于接收
+        private static Socket SendSocket;//用于发送
         public static byte[] buffer = new byte[1024 + 13];//socket缓冲区
 
         private static int checkRecDataQueueTimeInterval = 10; // 检查接收数据包队列时间休息间隔(ms)
-        private static int checkSendDataQueueTimeInterval = 300; // 检查发送命令队列时间休息间隔(ms)
-        private static int checkDataBaseQueueTimeInterval = 100; // 检查数据库命令队列时间休息间隔(ms)
+        private static int checkSendDataQueueTimeInterval = 100; // 检查发送命令队列时间休息间隔(ms)
+        private static int checkDataBaseQueueTimeInterval = 500; // 检查数据库命令队列时间休息间隔(ms)
 
         private static int updateDataLength = 256 * 1024;//升级文件大小
         private static int maxHistoryPackage = 2 * 1024 - 256;//刷卡记录的最大包数
@@ -62,7 +63,7 @@ namespace MenJinService
         public void Start()
         {
             serviceInit();
-
+            CmdClass.cmdInit();
             if (OpenServer() == true)
             {
                 UtilClass.writeLog("启动成功");
@@ -105,9 +106,13 @@ namespace MenJinService
                 //得到本机IP，设置TCP端口号         
                 IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Parse(ServerIP), ServerPort);
                 ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-
+                //配置广播发送socket
+                SendSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                SendSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
                 //绑定网络地址
                 ServerSocket.Bind(ipEndPoint);
+                //SendSocket.Bind(broadcastIpEndPoint);
+
 
                 ServerSocket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref myRemote, new AsyncCallback(OnReceive), myRemote);
 
@@ -184,11 +189,12 @@ namespace MenJinService
                     if (htClient.ContainsKey(strID) == false)
                     {
                         DataItem dataItem = new DataItem();
-                        dataItem.Init(ServerSocket, id, strID, updateDataLength, broadcastRemote,
+                        dataItem.Init(SendSocket, id, strID, updateDataLength, broadcastRemote,
                             maxHistoryPackage); //初始化dataItem
                         htClient.Add(strID, dataItem);
-                        //TODO:把设备信息存入数据库，创建记录表
+                        //把设备信息存入数据库，创建记录表
                         DbClass.addsensorinfo(strID, dataItem.HeartTime.ToString("yyyy-MM-dd HH:mm:ss"), dataItem.status.ToString());
+                        DbClass.creatHistoryChildtable(strID);
                     }
                     else
                     {
@@ -279,10 +285,21 @@ namespace MenJinService
                      * 7.如果是设置卡号，需要在dataitem设置大数组，加标志位并分多包发送。
                      * */
                     string[,] cmdStrings = DbClass.readCmd();
-                    for(int i=0;i<cmdStrings.Length;i++)
+                    if (cmdStrings != null)//先判定是否为空
                     {
-                        DataItem dataItem = (DataItem) htClient[cmdStrings[i, 0]];
-                        dataItem.sendDataQueue.Enqueue(CmdClass.makeCommand(cmdStrings[i,0], cmdStrings[i, 1], cmdStrings[i, 2], dataItem.byteID));
+                        for (int i = 0; i < cmdStrings.Length / 4; i++)
+                        {
+                            if (htClient.ContainsKey(cmdStrings[i, 0]))
+                            {
+                                DataItem dataItem = (DataItem) htClient[cmdStrings[i, 0]];
+                                byte[] cmd = CmdClass.makeCommand(cmdStrings[i, 1], cmdStrings[i, 2], cmdStrings[i, 3],
+                                    dataItem.byteID);
+                                if (cmd != null)
+                                {
+                                    dataItem.sendDataQueue.Enqueue(cmd);
+                                }
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)

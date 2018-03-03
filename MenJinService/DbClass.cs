@@ -91,7 +91,7 @@ namespace MenJinService
                 parmss = new MySqlParameter[]
                 {
                     new MySqlParameter("?sensorintdeviceID", MySqlDbType.VarChar),
-                    new MySqlParameter("?sensorloginTime", MySqlDbType.DateTime),
+                    new MySqlParameter("?sensorloginTime", MySqlDbType.VarChar),
                     new MySqlParameter("?sensorStatus", MySqlDbType.VarChar)
 
                 };
@@ -198,6 +198,109 @@ namespace MenJinService
             catch (Exception ex)
             {
                 return null;
+            }
+        }
+
+        //创建历史记录子表
+        public static string creatHistoryChildtable(string sensorintdeviceID)
+        {
+            MySQLDB.InitDb();
+            string sensorid = "0";
+            //从数据库中查找当前ID是否存在
+            try
+            {
+                DataSet ds1 = new DataSet("thistory");
+                string strSQL1 = "  SELECT deviceID FROM thistory WHERE deviceID=" + "\"" + sensorintdeviceID + "\"";
+                ds1 = MySQLDB.SelectDataSet(strSQL1, null);
+                if (ds1 != null)
+                {
+                    if (ds1.Tables[0].Rows.Count > 0)
+                    // 有数据集
+                    {
+                        sensorid = ds1.Tables[0].Rows[0][0].ToString();
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return "fail"; //数据库异常
+            }
+
+            //************************************************************
+            if (sensorid == "0") //若不存在,则添加,创建子表并新增数据
+            {
+                //DataSet ds = new DataSet("dssensorad");
+                //string strResult = "";
+                MySqlParameter[] parmss = null;
+                string strSQL = "";
+                //string strSQL2 = "";
+                bool IsDelSuccess = false;
+                //先在母表中插入ID和字表名
+                string childName = "thistorychild" + sensorintdeviceID;
+                strSQL =
+                    "insert into thistory (deviceID, ChildTable) values (?sensorintdeviceID , ?sensorChildTable);";
+                parmss = new MySqlParameter[]
+                {
+                    new MySqlParameter("?sensorintdeviceID", MySqlDbType.VarChar),
+                    new MySqlParameter("?sensorChildTable", MySqlDbType.VarChar)
+                };
+                parmss[0].Value = sensorintdeviceID;
+                parmss[1].Value = childName;
+
+                try
+                {
+                    IsDelSuccess = MySQLDB.ExecuteNonQry(strSQL, parmss);
+
+                    if (IsDelSuccess != false)
+                    {
+                        creatNewTable(childName); //创建子表
+                        return "ok";
+                    }
+                    else
+                    {
+                        return "fail";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return "fail";
+                }
+            }
+            else return "ok";
+        }
+
+        //创建新表
+        private static string creatNewTable(string childName)
+        {
+            MySQLDB.InitDb();
+            MySqlParameter[] parmss = null;
+            string strSQL = "";
+            bool IsDelSuccess = false;
+            strSQL = "CREATE TABLE " + childName +
+                     "(id INT AUTO_INCREMENT, CardID VARCHAR(45), DataDate VARCHAR(45), DoorID VARCHAR(45), PRIMARY KEY (`id`));"; //建立新表
+            /*parmss = new MySqlParameter[]
+                                     {
+                                         new MySqlParameter("?sensorChildTable", MySqlDbType.VarChar)
+                                     };
+            parmss[0].Value = childName;*/
+            try
+            {
+                IsDelSuccess = MySQLDB.ExecuteNonQry(strSQL, parmss);
+
+                if (IsDelSuccess != false)
+                {
+                    return "ok";
+                }
+                else
+                {
+                    return "fail";
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return "fail";
             }
         }
 
