@@ -292,11 +292,20 @@ namespace MenJinService
                             if (htClient.ContainsKey(cmdStrings[i, 0]))
                             {
                                 DataItem dataItem = (DataItem) htClient[cmdStrings[i, 0]];
-                                byte[] cmd = CmdClass.makeCommand(cmdStrings[i, 1], cmdStrings[i, 2], cmdStrings[i, 3],
-                                    dataItem.byteID);
-                                if (cmd != null)
+                                //普通指令可以直接构造并发送
+                                if (cmdStrings[i, 1] != "")
                                 {
-                                    dataItem.sendDataQueue.Enqueue(cmd);
+                                    byte[] cmd = CmdClass.makeCommand(cmdStrings[i, 1], cmdStrings[i, 2],
+                                        cmdStrings[i, 3],
+                                        dataItem.byteID);
+                                    if (cmd != null)
+                                    {
+                                        dataItem.sendDataQueue.Enqueue(cmd);
+                                    }
+                                }
+                                else//有一些指令需要多包发送和读取
+                                {
+
                                 }
                             }
                         }
