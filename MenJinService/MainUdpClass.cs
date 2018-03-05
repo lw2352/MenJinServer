@@ -107,8 +107,9 @@ namespace MenJinService
                 IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Parse(ServerIP), ServerPort);
                 ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                 //配置广播发送socket
-                SendSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                SendSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
+                ServerSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
+                //SendSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                //SendSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
                 //绑定网络地址
                 ServerSocket.Bind(ipEndPoint);
                 //SendSocket.Bind(broadcastIpEndPoint);
@@ -189,7 +190,7 @@ namespace MenJinService
                     if (htClient.ContainsKey(strID) == false)
                     {
                         DataItem dataItem = new DataItem();
-                        dataItem.Init(SendSocket, id, strID, updateDataLength, broadcastRemote,
+                        dataItem.Init(ServerSocket, id, strID, updateDataLength, broadcastRemote,
                             maxHistoryPackage); //初始化dataItem
                         htClient.Add(strID, dataItem);
                         //把设备信息存入数据库，创建记录表
@@ -292,9 +293,15 @@ namespace MenJinService
                             if (htClient.ContainsKey(cmdStrings[i, 0]))
                             {
                                 DataItem dataItem = (DataItem) htClient[cmdStrings[i, 0]];
-                                //普通指令可以直接构造并发送
-                                if (cmdStrings[i, 1] != "")
+                                //有一些指令需要多包发送和读取
+                                if (cmdStrings[i, 1] == "history")
                                 {
+                                    //先清空表的记录，再采集新纪录
+                                    DbClass.deleteHistory(dataItem.strID);
+                                    dataItem.tHistory.IsNeedHistory = true;
+                                }
+                                else//普通指令可以直接构造并发送
+                                {                                   
                                     byte[] cmd = CmdClass.makeCommand(cmdStrings[i, 1], cmdStrings[i, 2],
                                         cmdStrings[i, 3],
                                         dataItem.byteID);
@@ -303,12 +310,8 @@ namespace MenJinService
                                         dataItem.sendDataQueue.Enqueue(cmd);
                                     }
                                 }
-                                else//有一些指令需要多包发送和读取
-                                {
-
-                                }
                             }
-                        }
+                        }//end of for
                     }
                 }
                 catch (Exception ex)

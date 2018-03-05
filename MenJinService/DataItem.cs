@@ -77,8 +77,7 @@ namespace MenJinService
             if (sendDataQueue.Count > 0 && status == true)//没有待解析的命令，可以去发送命令
             {
                 byte[] datagramBytes = sendDataQueue.Dequeue(); //读取 Queue<T> 开始处的对象并移除
-                SendCmd(datagramBytes);
-                Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "硬件" + strID + "发送数据：" + UtilClass.byteToHexStr(datagramBytes));
+                SendCmd(datagramBytes);       
             }
         }
 
@@ -99,12 +98,44 @@ namespace MenJinService
                     case 0x23:
                         if (tHistory.IsNeedHistory == true)
                         {
-                            tHistory.currentNum++;
+                            tHistory.currentNum++;//当前读取包数加1
                             //解析数据
-                            for (int i = 0; i < 1024; i++)
+                            string[,] dadaStrings = new string[1024,3];
+                            int dataNum=0;
+                            for (int i = 0; i < 1024; i+=8)
                             {
-
+                                if (datagramBytes[10 + i+3] != 0xFF)//年份不可能为0xFF，否则是没有数据
+                                {
+                                    dataNum++;
+                                    //卡号
+                                    dadaStrings[i, 0] = UtilClass.hex2String[datagramBytes[10 + i]] +
+                                                        UtilClass.hex2String[datagramBytes[10 + i + 1]] +
+                                                        UtilClass.hex2String[datagramBytes[10 + i + 2]];
+                                    //时间
+                                    dadaStrings[i, 1] = UtilClass.hex2String[datagramBytes[10 + i + 3]] + //年
+                                                        UtilClass.hex2String
+                                                            [datagramBytes[10 + i + 4] & 0x0F] + //低四位表示月
+                                                        UtilClass.hex2String[datagramBytes[10 + i + 5]] + //日
+                                                        UtilClass.hex2String[datagramBytes[10 + i + 6]] + //时
+                                                        UtilClass.hex2String[datagramBytes[10 + i + 7]]; //分别
+                                    //门号, 高四位表示门号
+                                    if ((datagramBytes[10 + i + 4] & 0xF0) == 0x00)
+                                    {
+                                        dadaStrings[i, 3] = "A";
+                                    }
+                                    else if ((datagramBytes[10 + i + 4] & 0xF0) == 0x01)
+                                    {
+                                        dadaStrings[i, 3] = "B";
+                                    }
+                                }
+                                else//停止读取,复位结构体成员
+                                {
+                                    tHistory.IsNeedHistory = false;
+                                    tHistory.currentNum = 0;
+                                }
                             }
+                            //写入数据库
+                            DbClass.insertHistory(strID, dadaStrings, dataNum);
                         }
                         break;
 
@@ -136,6 +167,7 @@ namespace MenJinService
         {
             try
             {
+                Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "硬件" + strID + "发送数据：" + UtilClass.byteToHexStr(cmd));
                 socket.BeginSendTo(cmd, 0, cmd.Length, SocketFlags.None, remote, new AsyncCallback(OnSend), socket);
             }
             catch (Exception ex)
@@ -163,7 +195,7 @@ namespace MenJinService
 
         private byte[] SetHisCmd(int bulkCount)
         {
-            /***************************************************************************7-读写位*8，9第几包**10-数据位*************************************/
+            /***************************************************************************7-读写位; 8，9第几包; 10-数据位*************************************/
             byte[] Cmd = { 0xA5, 0xA5, 0x23, byteID[0], byteID[1], byteID[2], byteID[3], 0x00, 0x00, 0x00, 0x00, 0xFF, 0x5A, 0x5A };
             byte[] bytesbulkCount = new byte[2];
             bytesbulkCount = intToBytes(bulkCount);

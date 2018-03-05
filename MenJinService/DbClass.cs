@@ -160,7 +160,7 @@ namespace MenJinService
         }
 
         /// <summary>
-        /// 读取命令,返回二维数组
+        /// 读取命令,返回二维数组,并重置字段为-1
         /// </summary>
         public static string[,] readCmd()
         {
@@ -171,7 +171,7 @@ namespace MenJinService
             {
                 DataSet ds1 = new DataSet("tcommand");
                 string strSQL1 =
-                    "SELECT * FROM tcommand where cmdName!='-1'";
+                    "SELECT * FROM tcommand where (cmdName!='-1' AND cmdName!='ok')";
                 ds1 = MySQLDB.SelectDataSet(strSQL1, null);
                 if (ds1 != null)
                 {
@@ -187,6 +187,10 @@ namespace MenJinService
                             ret[i, 2] = ds1.Tables[0].Rows[i]["operation"].ToString();
                             ret[i, 3] = ds1.Tables[0].Rows[i]["data"].ToString();
                         }
+
+                        //重置字段为-1,add3-5
+                        string strSQL2 ="UPDATE tcommand SET cmdName = '-1'";
+                        ds1 = MySQLDB.SelectDataSet(strSQL2, null);
 
                         return ret;
                     }
@@ -300,6 +304,74 @@ namespace MenJinService
             catch (Exception ex)
             {
 
+                return "fail";
+            }
+        }
+
+        //清除ID对应的记录
+        public static string deleteHistory(string strID)
+        {
+            MySQLDB.InitDb();
+            MySqlParameter[] parmss = null;
+            string strSQL = "";
+            bool IsDelSuccess = false;
+            string childName = "thistorychild" + strID;
+            strSQL = "DELETE FROM "+ childName; //删除全部记录
+
+            try
+            {
+                IsDelSuccess = MySQLDB.ExecuteNonQry(strSQL, parmss);
+
+                if (IsDelSuccess != false)
+                {
+                    return "ok";
+                }
+                else
+                {
+                    return "fail";
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return "fail";
+            }
+        }
+
+        //批量插入记录
+        public static string insertHistory(string strID, string[,] dataStrings, int dataNum)
+        {
+            MySQLDB.InitDb();
+            string strResult = "";
+            MySqlParameter[] parmss = null;
+            string strSQL = "";
+            bool IsDelSuccess = false;
+            string childName = "thistorychild" + strID;
+            strSQL = "INSERT INTO"+ childName+"(CardID, DataDate, DoorID) VALUES ";
+            for (int i = 0; i < dataNum; i++)
+            {
+                strSQL += "(" + dataStrings[i, 0] + dataStrings[i, 0] + dataStrings[i, 0] + ")";
+                if (i < dataNum - 1)
+                {
+                    strSQL += ",";
+                }
+            }
+            try
+            {
+                IsDelSuccess = MySQLDB.ExecuteNonQry(strSQL, parmss);
+
+                if (IsDelSuccess != false)
+                {
+                    return "ok";
+                }
+                else
+                {
+                    return "fail";
+                }
+            }
+
+            catch (Exception ex)
+            {
                 return "fail";
             }
         }
