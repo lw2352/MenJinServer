@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.IO;
 
 namespace MenJinService
 {
@@ -286,6 +287,12 @@ namespace MenJinService
                      * 6.如果是升级文件的路径，则需要读取文件内容并存入dataitem，设置标志位
                      * 7.如果是设置卡号，需要在dataitem设置大数组，加标志位并分多包发送。
                      * */
+                    /*
+                     *ret[i, 0] = ds1.Tables[0].Rows[i]["deviceID"].ToString();
+                            ret[i, 1] = ds1.Tables[0].Rows[i]["cmdName"].ToString();
+                            ret[i, 2] = ds1.Tables[0].Rows[i]["operation"].ToString();
+                            ret[i, 3] = ds1.Tables[0].Rows[i]["data"].ToString();
+                     */
                     string[,] cmdStrings = DbClass.readCmd();
                     if (cmdStrings != null)//先判定是否为空
                     {
@@ -300,6 +307,33 @@ namespace MenJinService
                                     //先清空表的记录，再采集新纪录
                                     DbClass.deleteHistory(dataItem.strID);
                                     dataItem.tHistory.IsNeedHistory = true;
+                                }
+                                else if (cmdStrings[i, 1] == "update")
+                                {
+                                        using (FileStream fsSource = new FileStream(cmdStrings[i, 3],
+                                            FileMode.Open, FileAccess.Read))
+                                        {
+
+                                            // Read the source file into a byte array.
+                                            byte[] bytes = new byte[fsSource.Length];
+                                            int numBytesToRead = (int)fsSource.Length;
+                                            int numBytesRead = 0;
+                                            while (numBytesToRead > 0)
+                                            {
+                                                // Read may return anything from 0 to numBytesToRead.
+                                                int n = fsSource.Read(bytes, numBytesRead, numBytesToRead);
+
+                                                // Break when the end of the file is reached.
+                                                if (n == 0)
+                                                    break;
+
+                                                numBytesRead += n;
+                                                numBytesToRead -= n;
+                                            }
+                                            numBytesToRead = bytes.Length;
+                                       
+                                    }
+
                                 }
                                 else//普通指令可以直接构造并发送
                                 {                                   

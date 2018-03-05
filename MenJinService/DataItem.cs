@@ -144,6 +144,22 @@ namespace MenJinService
                         }
                         break;
 
+                    case 0x1E:
+                        if (tUpdate.IsNeedUpdate == true)
+                        {
+                            if (datagramBytes[9] == 0x55)
+                            {
+                                tUpdate.currentNum++;
+                            }
+                            //最多64个包
+                            if (tUpdate.currentNum == 64)
+                            {
+                                tUpdate.IsNeedUpdate = false;
+                                tUpdate.currentNum = 0;
+                            }
+                        }
+                        break;
+
                     default:
                         break;                        
                 }

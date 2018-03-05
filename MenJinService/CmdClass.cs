@@ -24,6 +24,7 @@ namespace MenJinService
             //命令号
             htCmdNum.Add("search", 0x00);
             htCmdNum.Add("history", 0x23);
+            htCmdNum.Add("time", 0x02);
         }
 
         public static byte[] makeCommand(string cmdFlag, string rw, string data, byte[] mcuID)
