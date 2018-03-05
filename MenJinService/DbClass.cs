@@ -347,10 +347,10 @@ namespace MenJinService
             string strSQL = "";
             bool IsDelSuccess = false;
             string childName = "thistorychild" + strID;
-            strSQL = "INSERT INTO"+ childName+"(CardID, DataDate, DoorID) VALUES ";
+            strSQL = "INSERT INTO "+ childName+"(CardID, DataDate, DoorID) VALUES ";
             for (int i = 0; i < dataNum; i++)
             {
-                strSQL += "(" + dataStrings[i, 0] + dataStrings[i, 0] + dataStrings[i, 0] + ")";
+                strSQL += "(" + "'" + dataStrings[i, 0] + "'" + "," + "'" + dataStrings[i, 1] + "'" + "," + "'" + dataStrings[i, 2] + "'" + ")";
                 if (i < dataNum - 1)
                 {
                     strSQL += ",";

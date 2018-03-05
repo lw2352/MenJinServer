@@ -106,34 +106,39 @@ namespace MenJinService
                             {
                                 if (datagramBytes[10 + i+3] != 0xFF)//年份不可能为0xFF，否则是没有数据
                                 {
-                                    dataNum++;
+                                    
                                     //卡号
-                                    dadaStrings[i, 0] = UtilClass.hex2String[datagramBytes[10 + i]] +
+                                    dadaStrings[dataNum, 0] = UtilClass.hex2String[datagramBytes[10 + i]] +
                                                         UtilClass.hex2String[datagramBytes[10 + i + 1]] +
                                                         UtilClass.hex2String[datagramBytes[10 + i + 2]];
                                     //时间
-                                    dadaStrings[i, 1] = UtilClass.hex2String[datagramBytes[10 + i + 3]] + //年
+                                    /*dadaStrings[dataNum, 1] = UtilClass.hex2String[datagramBytes[10 + i + 3]] + //年
                                                         UtilClass.hex2String
                                                             [datagramBytes[10 + i + 4] & 0x0F] + //低四位表示月
                                                         UtilClass.hex2String[datagramBytes[10 + i + 5]] + //日
                                                         UtilClass.hex2String[datagramBytes[10 + i + 6]] + //时
-                                                        UtilClass.hex2String[datagramBytes[10 + i + 7]]; //分别
+                                                        UtilClass.hex2String[datagramBytes[10 + i + 7]]; //分*/
+                                    DateTime dt = new DateTime(datagramBytes[10 + i + 3]+2000, datagramBytes[10 + i + 4] & 0x0F, datagramBytes[10 + i + 5], datagramBytes[10 + i + 6], datagramBytes[10 + i + 7], 0, 0);
+                                    dadaStrings[dataNum, 1] = dt.ToString("yyyy-MM-dd HH:mm:ss");
                                     //门号, 高四位表示门号
-                                    if ((datagramBytes[10 + i + 4] & 0xF0) == 0x00)
+                                    if ((datagramBytes[10 + i + 4] >>4) == 0x00)
                                     {
-                                        dadaStrings[i, 3] = "A";
+                                        dadaStrings[dataNum, 2] = "A";
                                     }
-                                    else if ((datagramBytes[10 + i + 4] & 0xF0) == 0x01)
+                                    else if ((datagramBytes[10 + i + 4] >>4) == 0x01)
                                     {
-                                        dadaStrings[i, 3] = "B";
+                                        dadaStrings[dataNum, 2] = "B";
                                     }
+                                    dataNum++;//有效记录数
                                 }
                                 else//停止读取,复位结构体成员
                                 {
                                     tHistory.IsNeedHistory = false;
                                     tHistory.currentNum = 0;
+                                    //跳出for循环
+                                    break;
                                 }
-                            }
+                            }//end of for
                             //写入数据库
                             DbClass.insertHistory(strID, dadaStrings, dataNum);
                         }

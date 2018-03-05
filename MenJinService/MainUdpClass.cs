@@ -53,6 +53,7 @@ namespace MenJinService
         {
             UtilClass.utilInit();
             //byte[] a = UtilClass.hexStrToByte("789132");
+            //DateTime dt = new DateTime((byte)17, 4, 1, 13, 16, 0, 0);
             MySQLDB.m_strConn = System.Configuration.ConfigurationManager.AppSettings["ServerDB"];
         }
 
@@ -251,7 +252,7 @@ namespace MenJinService
                     foreach (DataItem dataItem in htClient.Values)
                     {
                         dataItem.SendData();
-                        if (CheckTimeout(dataItem.HeartTime, maxTimeOut))
+                        if (CheckTimeout(dataItem.HeartTime, maxTimeOut) && dataItem.status == true)
                         {
                             dataItem.status = false;
                             //更新数据库信息
