@@ -61,7 +61,7 @@ namespace MenJinService
 
         public void HandleData()
         {
-            if (recDataQueue.Count > 0 && status == true)//命令已发送后，得到返回信息需要一段时间，再去解析数据
+            if (recDataQueue.Count > 0)//命令已发送后，得到返回信息需要一段时间，再去解析数据
             {
                 byte[] datagramBytes = recDataQueue.Dequeue();//读取 Queue<T> 开始处的对象并移除
                 AsyncAnalyzeData method = new AsyncAnalyzeData(AnalyzeData);
@@ -74,7 +74,7 @@ namespace MenJinService
         /// </summary>
         public void SendData()
         {
-            if (sendDataQueue.Count > 0 && status == true)//没有待解析的命令，可以去发送命令
+            if (sendDataQueue.Count > 0)//没有待解析的命令，可以去发送命令
             {
                 byte[] datagramBytes = sendDataQueue.Dequeue(); //读取 Queue<T> 开始处的对象并移除
                 SendCmd(datagramBytes);       
@@ -89,16 +89,31 @@ namespace MenJinService
             {
                 switch (datagramBytes[2])
                 {
+                    //心跳包
                     case 0x00:
                         status = true;
                         HeartTime = DateTime.Now;
                         DbClass.UpdateSensorInfo(strID, "lastLoginTime", HeartTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                        DbClass.UpdateSensorInfo(strID, "status", status.ToString());
                         break;
 
+                    //刷卡记录
                     case 0x23:
                         if (tHistory.IsNeedHistory == true)
                         {
+                            if (datagramBytes[10] == 0xAA)
+                            {
+                                //写入数据库
+                                DbClass.UpdateCmd(strID, "cmdName", "fail");
+                                break;
+                            }
+
                             tHistory.currentNum++;//当前读取包数加1
+                            if (tHistory.currentNum == maxHistoryPackage)//读到尾部了
+                            {
+                                tHistory.IsNeedHistory = false;
+                                tHistory.currentNum = 0;
+                            }
                             //解析数据
                             string[,] dadaStrings = new string[1024,3];
                             int dataNum=0;
@@ -141,23 +156,47 @@ namespace MenJinService
                             }//end of for
                             //写入数据库
                             DbClass.insertHistory(strID, dadaStrings, dataNum);
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
                         }
                         break;
 
+                    //升级
                     case 0x1E:
                         if (tUpdate.IsNeedUpdate == true)
                         {
-                            if (datagramBytes[9] == 0x55)
+                            if (datagramBytes[10] == 0x55)
                             {
                                 tUpdate.currentNum++;
                             }
-                            //最多64个包
-                            if (tUpdate.currentNum == 64)
+                            else if (datagramBytes[10] == 0xAA)
+                            {
+                                //写入数据库
+                                DbClass.UpdateCmd(strID, "cmdName", "fail");
+                            }
+                            //最多256个包(256K)
+                            if (tUpdate.currentNum == 256)
                             {
                                 tUpdate.IsNeedUpdate = false;
                                 tUpdate.currentNum = 0;
+                                //写入数据库
+                                DbClass.UpdateCmd(strID, "cmdName", "ok");
                             }
                         }
+                        break;
+
+                    //重启（并升级）
+                    case 0x21:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        break;
+
+                    //读取版本号
+                    case 0x24:
+                        //写入数据库
+                        DbClass.UpdateCmd(strID, "data", UtilClass.hex2String[datagramBytes[10]]);
                         break;
 
                     default:
@@ -170,7 +209,7 @@ namespace MenJinService
                 }
                 if (tUpdate.IsNeedUpdate == true)
                 {
-                    SendCmd(SetUpdateCmd(datagramBytes));
+                    SendCmd(SetUpdateCmd(tUpdate.currentNum));
                 }
             }
             catch (Exception e)
@@ -227,16 +266,31 @@ namespace MenJinService
             return (Cmd);
         }
 
-        private byte[] SetUpdateCmd(byte[] data)
+        private byte[] SetUpdateCmd(int bulkCount)
         {
             /***************************************************************************7-读写位*8，9第几包**10-数据位*************************************/
-            byte[] Cmd = { 0xA5, 0xA5, 0x23, byteID[0], byteID[1], byteID[2], byteID[3], 0x00, 0x00, 0x00, 0x00, 0xFF, 0x5A, 0x5A };
+            byte[] Cmd = new byte[1024+13];
             byte[] bytesbulkCount = new byte[2];
-            //bytesbulkCount = intToBytes(bulkCount);
+            bytesbulkCount = intToBytes(bulkCount);
 
+            Cmd[0] = 0xA5;
+            Cmd[1] = 0xA5;
+            Cmd[2] = 0x1E;
+            Cmd[3] = byteID[0];
+            Cmd[4] = byteID[1];
+            Cmd[5] = byteID[2];
+            Cmd[6] = byteID[3];
+            Cmd[7] = 0x01;
             Cmd[8] = bytesbulkCount[0];
             Cmd[9] = bytesbulkCount[1];
+            for (int i = 0; i < 1024; i++)
+            {
+                Cmd[10 + i] = updateData[bulkCount * 1024 + i];
+            }
 
+            Cmd[1024 + 10 + 0] = 0xFF;
+            Cmd[1024 + 10 + 1] = 0x5A;
+            Cmd[1024 + 10 + 2] = 0x5A;
             return (Cmd);
         }
 

@@ -20,6 +20,7 @@ namespace MenJinService
         private static string ServerIP = System.Configuration.ConfigurationManager.AppSettings["ServerIP"];
         //监听端口号
         private static int ServerPort = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["ServerPort"]);
+        private static int maxTimeOut = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["maxTimeOut"]); //超时未响应时间--1min
 
         private static Hashtable htClient = new Hashtable(); //strID--DataItem
 
@@ -27,14 +28,13 @@ namespace MenJinService
         private static Socket SendSocket;//用于发送
         public static byte[] buffer = new byte[1024 + 13];//socket缓冲区
 
-        private static int checkRecDataQueueTimeInterval = 10; // 检查接收数据包队列时间休息间隔(ms)
+        private static int checkRecDataQueueTimeInterval = 50; // 检查接收数据包队列时间休息间隔(ms)
         private static int checkSendDataQueueTimeInterval = 100; // 检查发送命令队列时间休息间隔(ms)
         private static int checkDataBaseQueueTimeInterval = 500; // 检查数据库命令队列时间休息间隔(ms)
 
         private static int updateDataLength = 256 * 1024;//升级文件大小
         private static int maxHistoryPackage = 2 * 1024 - 256;//刷卡记录的最大包数
-
-        private static int maxTimeOut = 60; //超时未响应时间--1min
+        
         //广播地址，255.255.255.255:6000
         private static IPEndPoint broadcastIpEndPoint = new IPEndPoint(IPAddress.Broadcast, 6000);
         private static EndPoint broadcastRemote = (EndPoint)(broadcastIpEndPoint);
@@ -313,26 +313,21 @@ namespace MenJinService
                                         using (FileStream fsSource = new FileStream(cmdStrings[i, 3],
                                             FileMode.Open, FileAccess.Read))
                                         {
-
                                             // Read the source file into a byte array.
-                                            byte[] bytes = new byte[fsSource.Length];
+                                            for (int j = 0; j < updateDataLength; j++) //先用0xFF填充
+                                            {
+                                                dataItem.updateData[j] = 0xFF;
+                                            }
                                             int numBytesToRead = (int)fsSource.Length;
-                                            int numBytesRead = 0;
-                                            while (numBytesToRead > 0)
+                                            if (numBytesToRead > 0)
                                             {
                                                 // Read may return anything from 0 to numBytesToRead.
-                                                int n = fsSource.Read(bytes, numBytesRead, numBytesToRead);
-
-                                                // Break when the end of the file is reached.
-                                                if (n == 0)
-                                                    break;
-
-                                                numBytesRead += n;
-                                                numBytesToRead -= n;
+                                                fsSource.Read(dataItem.updateData, 0, numBytesToRead);
                                             }
-                                            numBytesToRead = bytes.Length;
-                                       
-                                    }
+
+                                        }
+                                    //设置升级属性
+                                    dataItem.tUpdate.IsNeedUpdate = true;
 
                                 }
                                 else//普通指令可以直接构造并发送
@@ -351,7 +346,7 @@ namespace MenJinService
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine(ex);
+                    UtilClass.writeLog(ex.ToString());
                 }
 
                 Thread.Sleep(checkDataBaseQueueTimeInterval);

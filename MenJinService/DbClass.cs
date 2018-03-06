@@ -376,6 +376,44 @@ namespace MenJinService
             }
         }
 
+        //更新设备信息
+        public static string UpdateCmd(string sensorintdeviceID, string updateItem, string updateNum)
+        {
+            MySQLDB.InitDb();
+            string strResult = "";
+            MySqlParameter[] parmss = null;
+            string strSQL = "";
+            bool IsDelSuccess = false;
+            strSQL =
+                "Update tcommand SET " + updateItem + " =?sensorupdateItem WHERE deviceID=?sensorintdeviceID";
+            parmss = new MySqlParameter[]
+            {
+                new MySqlParameter("?sensorintdeviceID", MySqlDbType.VarChar),
+                new MySqlParameter("?sensorupdateItem", MySqlDbType.VarChar)
+            };
+            parmss[0].Value = sensorintdeviceID;
+            parmss[1].Value = updateNum;
+
+            try
+            {
+                IsDelSuccess = MySQLDB.ExecuteNonQry(strSQL, parmss);
+
+                if (IsDelSuccess != false)
+                {
+                    return "ok";
+                }
+                else
+                {
+                    return "fail";
+                }
+            }
+
+            catch (Exception ex)
+            {
+                return "fail";
+            }
+        }
+
 
     }
 }

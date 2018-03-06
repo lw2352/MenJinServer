@@ -25,6 +25,8 @@ namespace MenJinService
             htCmdNum.Add("search", 0x00);
             htCmdNum.Add("history", 0x23);
             htCmdNum.Add("time", 0x02);
+            htCmdNum.Add("reboot", 0x21);
+            htCmdNum.Add("version", 0x24);
         }
 
         public static byte[] makeCommand(string cmdFlag, string rw, string data, byte[] mcuID)
