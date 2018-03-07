@@ -23,7 +23,6 @@ namespace MenJinService
             htCmdNum.Add("write", 0x01);
             //命令号
             htCmdNum.Add("search", 0x00);
-            htCmdNum.Add("history", 0x23);
             htCmdNum.Add("time", 0x02);
             htCmdNum.Add("reboot", 0x21);
             htCmdNum.Add("version", 0x24);

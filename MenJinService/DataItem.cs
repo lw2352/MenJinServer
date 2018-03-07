@@ -20,6 +20,22 @@ namespace MenJinService
         public int currentNum;
     };
 
+    //普通卡号结构体
+    struct GeneralCardId
+    {
+        public bool IsNeedSet;//是否需要
+        public int currentNum;
+        public byte rw;//读写
+    };
+
+    //指纹卡号结构体
+    struct FingerId
+    {
+        public bool IsNeedSet;//是否需要
+        public int currentNum;
+        public byte rw;//读写
+    };
+
     //设备类
     class DataItem
     {
@@ -29,14 +45,19 @@ namespace MenJinService
         public History tHistory;
         public Update tUpdate;
 
+        public GeneralCardId tGeneralCardId;
+        public FingerId tFingerId;
+
         public Socket socket;//实际共用SendSocket，用来发送数据
         public EndPoint remote;//客户端节点，实际用广播包
         public DateTime HeartTime; //上一次心跳包发上来的时间
         public byte[] updateData; //所有数据,存放历史记录
+        public byte[] generalCardID = new byte[1500];//普通卡
+        public byte[] fingerID = new byte[1500];//指纹ID
         public int maxHistoryPackage;//刷卡记录的最大包数
         public Queue<byte[]> recDataQueue = new Queue<byte[]>();//数据接收队列；queue是对象的先进先出集合
         public Queue<byte[]> sendDataQueue = new Queue<byte[]>();//数据发送队列
-        private delegate void AsyncAnalyzeData(byte[] data);
+        //private delegate void AsyncAnalyzeData(byte[] data);
 
         /// <summary>
         /// 初始化DataItem
@@ -64,8 +85,9 @@ namespace MenJinService
             if (recDataQueue.Count > 0)//命令已发送后，得到返回信息需要一段时间，再去解析数据
             {
                 byte[] datagramBytes = recDataQueue.Dequeue();//读取 Queue<T> 开始处的对象并移除
-                AsyncAnalyzeData method = new AsyncAnalyzeData(AnalyzeData);
-                method.BeginInvoke(datagramBytes, null, null);
+                //AsyncAnalyzeData method = new AsyncAnalyzeData(AnalyzeData);
+                //method.BeginInvoke(datagramBytes, null, null);
+                AnalyzeData(datagramBytes);
             }
         }
 
@@ -89,7 +111,8 @@ namespace MenJinService
             {
                 switch (datagramBytes[2])
                 {
-                    //心跳包
+                    #region 心跳包和刷卡记录
+                    //心跳包（也用于搜索设备）
                     case 0x00:
                         status = true;
                         HeartTime = DateTime.Now;
@@ -115,13 +138,13 @@ namespace MenJinService
                                 tHistory.currentNum = 0;
                             }
                             //解析数据
-                            string[,] dadaStrings = new string[1024,3];
-                            int dataNum=0;
-                            for (int i = 0; i < 1024; i+=8)
+                            string[,] dadaStrings = new string[1024, 3];
+                            int dataNum = 0;
+                            for (int i = 0; i < 1024; i += 8)
                             {
-                                if (datagramBytes[10 + i+3] != 0xFF)//年份不可能为0xFF，否则是没有数据
+                                if (datagramBytes[10 + i + 3] != 0xFF)//年份不可能为0xFF，否则是没有数据
                                 {
-                                    
+
                                     //卡号
                                     dadaStrings[dataNum, 0] = UtilClass.hex2String[datagramBytes[10 + i]] +
                                                         UtilClass.hex2String[datagramBytes[10 + i + 1]] +
@@ -133,14 +156,14 @@ namespace MenJinService
                                                         UtilClass.hex2String[datagramBytes[10 + i + 5]] + //日
                                                         UtilClass.hex2String[datagramBytes[10 + i + 6]] + //时
                                                         UtilClass.hex2String[datagramBytes[10 + i + 7]]; //分*/
-                                    DateTime dt = new DateTime(datagramBytes[10 + i + 3]+2000, datagramBytes[10 + i + 4] & 0x0F, datagramBytes[10 + i + 5], datagramBytes[10 + i + 6], datagramBytes[10 + i + 7], 0, 0);
+                                    DateTime dt = new DateTime(datagramBytes[10 + i + 3] + 2000, datagramBytes[10 + i + 4] & 0x0F, datagramBytes[10 + i + 5], datagramBytes[10 + i + 6], datagramBytes[10 + i + 7], 0, 0);
                                     dadaStrings[dataNum, 1] = dt.ToString("yyyy-MM-dd HH:mm:ss");
                                     //门号, 高四位表示门号
-                                    if ((datagramBytes[10 + i + 4] >>4) == 0x00)
+                                    if ((datagramBytes[10 + i + 4] >> 4) == 0x00)
                                     {
                                         dadaStrings[dataNum, 2] = "A";
                                     }
-                                    else if ((datagramBytes[10 + i + 4] >>4) == 0x01)
+                                    else if ((datagramBytes[10 + i + 4] >> 4) == 0x01)
                                     {
                                         dadaStrings[dataNum, 2] = "B";
                                     }
@@ -160,6 +183,11 @@ namespace MenJinService
                         }
                         break;
 
+
+                    #endregion
+
+
+                    #region 设备升级相关命令
                     //升级
                     case 0x1E:
                         if (tUpdate.IsNeedUpdate == true)
@@ -199,6 +227,254 @@ namespace MenJinService
                         DbClass.UpdateCmd(strID, "data", UtilClass.hex2String[datagramBytes[10]]);
                         break;
 
+
+                    #endregion
+
+
+                    #region 开关门时长，本地ip和时间
+                    //DS1302时间
+                    case 0x02:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]] + UtilClass.hex2String[datagramBytes[11]] +
+                                UtilClass.hex2String[datagramBytes[12]] + UtilClass.hex2String[datagramBytes[13]] +
+                                UtilClass.hex2String[datagramBytes[14]]);
+                        }
+                        break;
+
+                    //local ip
+                    case 0x03:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]] + UtilClass.hex2String[datagramBytes[11]] +
+                                UtilClass.hex2String[datagramBytes[12]] + UtilClass.hex2String[datagramBytes[13]]);
+                        }
+                        break;
+
+                    //开门时长（取值为1-255，不能为0）
+                    case 0x07:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]]);
+                        }
+                        break;
+
+                    //关门时长，若为0，表示不检测反馈
+                    case 0x08:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]]);
+                        }
+                        break;
+
+
+                    #endregion
+
+
+                    #region 关系命令                 
+                    //读头A关系
+                    case 0x09:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]]);
+                        }
+                        break;
+
+                    //读头B关系
+                    case 0x0A:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]]);
+                        }
+                        break;
+
+                    //按键A关系
+                    case 0x0B:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]]);
+                        }
+                        break;
+
+                    //按键B关系
+                    case 0x0C:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]]);
+                        }
+                        break;
+                    #endregion
+
+                    #region 8个开门方式的配置
+
+
+                    #endregion
+
+
+                    #region 普通卡和指纹的配置  
+                    case 0x1D://普通卡，第9个字节表示第几包
+                        if (tGeneralCardId.IsNeedSet == true)
+                        {
+                            if (datagramBytes[7] == 0x00)
+                            {                                
+                                Array.Copy(datagramBytes, 10, generalCardID, tGeneralCardId.currentNum*300, 300);
+                                tGeneralCardId.currentNum++;
+                            }
+
+                            if (datagramBytes[10] == 0x55)
+                            {
+                                tGeneralCardId.currentNum++;
+                            }
+                            else if (datagramBytes[10] == 0xAA)
+                            {
+                                //写入数据库
+                                DbClass.UpdateCmd(strID, "cmdName", "fail");
+                            }
+                            //最多5个包(1500字节，500个卡号)
+                            if (tGeneralCardId.currentNum == 5)
+                            {
+                                tGeneralCardId.IsNeedSet = false;
+                                tGeneralCardId.currentNum = 0;
+                                //写入数据库
+                                DbClass.UpdateCmd(strID, "cmdName", "ok");
+                                if (tGeneralCardId.rw == 0)
+                                {
+                                    DbClass.UpdateCmd(strID, "data", UtilClass.byteToHexStr(generalCardID));
+                                }
+                            }
+                        }
+                        break;
+
+                    case 0x1C://指纹号，第9个字节表示第几包
+                        if (tFingerId.IsNeedSet == true)
+                        {
+                            if (datagramBytes[7] == 0x00)
+                            {
+                                Array.Copy(datagramBytes, 10, fingerID, tFingerId.currentNum * 300, 300);
+                                tFingerId.currentNum++;
+                            }
+
+                            if (datagramBytes[10] == 0x55)
+                            {
+                                tFingerId.currentNum++;
+                            }
+                            else if (datagramBytes[10] == 0xAA)
+                            {
+                                //写入数据库
+                                DbClass.UpdateCmd(strID, "cmdName", "fail");
+                            }
+                            //最多5个包(1500字节，500个卡号)
+                            if (tFingerId.currentNum == 5)
+                            {
+                                tFingerId.IsNeedSet = false;
+                                tFingerId.currentNum = 0;
+                                //写入数据库
+                                DbClass.UpdateCmd(strID, "cmdName", "ok");
+                                if (tFingerId.rw == 0)
+                                {
+                                    DbClass.UpdateCmd(strID, "data", UtilClass.byteToHexStr(fingerID));
+                                }
+                            }
+                        }
+                        break;
+
+
+                    #endregion
+
+                    #region 重置参数、远程开门、报警消息、当前刷卡号
+                    case 0x06:
+                        string door = "-1";
+                        DbClass.UpdateSensorInfo(strID, "cardID_now",
+                            UtilClass.hex2String[datagramBytes[10]] + UtilClass.hex2String[datagramBytes[11]] +
+                            UtilClass.hex2String[datagramBytes[12]]);
+                        //门号, 高四位表示门号
+                        if ((datagramBytes[10 + 4] >> 4) == 0x00)
+                        {
+                            door = "A";
+                        }
+                        else if ((datagramBytes[10 + 4] >> 4) == 0x01)
+                        {
+                            door = "B";
+                        }
+                        DbClass.UpdateSensorInfo(strID, "door_now", door);
+                        break;
+
+                    case 0x22:
+                        DbClass.UpdateSensorInfo(strID, "cardID_now",
+                            UtilClass.hex2String[datagramBytes[10]] + UtilClass.hex2String[datagramBytes[11]] +
+                            UtilClass.hex2String[datagramBytes[12]]);
+                        DbClass.UpdateSensorInfo(strID, "door_now", "22");
+                        break;
+
+                    case 0x1F:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        break;
+
+                    //远程开门，低a高b
+                    case 0x20:
+                        break;
+
+                    #endregion
                     default:
                         break;                        
                 }
@@ -210,6 +486,15 @@ namespace MenJinService
                 if (tUpdate.IsNeedUpdate == true)
                 {
                     SendCmd(SetUpdateCmd(tUpdate.currentNum));
+                }
+
+                if (tGeneralCardId.IsNeedSet == true)
+                {
+                    SendCmd(SetGeneralCardID(tGeneralCardId.currentNum, tGeneralCardId.rw));
+                }
+                if (tFingerId.IsNeedSet == true)
+                {
+                    SendCmd(SetFingerID(tFingerId.currentNum, tFingerId.rw));
                 }
             }
             catch (Exception e)
@@ -306,6 +591,65 @@ namespace MenJinService
             src[0] = (byte)((value >> 8) & 0xFF);
             src[1] = (byte)(value & 0xFF);
             return src;
+        }
+
+        private byte[] SetGeneralCardID(int bulkCount, byte rw)
+        {
+            //每包300字节，100个卡号
+            /***************************************************************************7-读写位*8，9第几包**10-数据位*************************************/
+            byte[] Cmd = new byte[300 + 13];
+            byte[] bytesbulkCount = new byte[2];
+            bytesbulkCount = intToBytes(bulkCount);
+
+            Cmd[0] = 0xA5;
+            Cmd[1] = 0xA5;
+            Cmd[2] = 0x1D;
+            Cmd[3] = byteID[0];
+            Cmd[4] = byteID[1];
+            Cmd[5] = byteID[2];
+            Cmd[6] = byteID[3];
+            Cmd[7] = rw;
+            Cmd[8] = bytesbulkCount[0];
+            Cmd[9] = bytesbulkCount[1];
+            for (int i = 0; i < 300; i++)
+            {
+                Cmd[10 + i] = generalCardID[bulkCount * 300 + i];
+            }
+
+            Cmd[300 + 10 + 0] = 0xFF;
+            Cmd[300 + 10 + 1] = 0x5A;
+            Cmd[300 + 10 + 2] = 0x5A;
+            return (Cmd);
+
+        }
+
+        private byte[] SetFingerID(int bulkCount, byte rw)
+        {
+            //每包300字节，100个卡号
+            /***************************************************************************7-读写位*8，9第几包**10-数据位*************************************/
+            byte[] Cmd = new byte[300 + 13];
+            byte[] bytesbulkCount = new byte[2];
+            bytesbulkCount = intToBytes(bulkCount);
+
+            Cmd[0] = 0xA5;
+            Cmd[1] = 0xA5;
+            Cmd[2] = 0x1C;
+            Cmd[3] = byteID[0];
+            Cmd[4] = byteID[1];
+            Cmd[5] = byteID[2];
+            Cmd[6] = byteID[3];
+            Cmd[7] = rw;
+            Cmd[8] = bytesbulkCount[0];
+            Cmd[9] = bytesbulkCount[1];
+            for (int i = 0; i < 300; i++)
+            {
+                Cmd[10 + i] = fingerID[bulkCount * 300 + i];
+            }
+
+            Cmd[300 + 10 + 0] = 0xFF;
+            Cmd[300 + 10 + 1] = 0x5A;
+            Cmd[300 + 10 + 2] = 0x5A;
+            return (Cmd);
         }
 
     }

@@ -43,7 +43,7 @@ namespace MenJinService
         private ManualResetEvent checkRecDataQueueResetEvent = new ManualResetEvent(true);
 
         //处理发送数据线程，把数据哈希表中的数据复制到各个dataItem中的发送队列
-        private ManualResetEvent checkSendDataQueueResetEvent = new ManualResetEvent(true);
+        //private ManualResetEvent checkSendDataQueueResetEvent = new ManualResetEvent(true);
 
         private ManualResetEvent CheckDataBaseQueueResetEvent = new ManualResetEvent(true);
 
@@ -68,6 +68,8 @@ namespace MenJinService
             CmdClass.cmdInit();
             if (OpenServer() == true)
             {
+                //初始化设备状态为false
+                DbClass.UpdateSensorInfo();
                 UtilClass.writeLog("启动成功");
             }
             else
@@ -110,11 +112,9 @@ namespace MenJinService
                 ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                 //配置广播发送socket
                 ServerSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
-                //SendSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                //SendSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
+
                 //绑定网络地址
                 ServerSocket.Bind(ipEndPoint);
-                //SendSocket.Bind(broadcastIpEndPoint);
 
 
                 ServerSocket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref myRemote, new AsyncCallback(OnReceive), myRemote);
@@ -122,9 +122,7 @@ namespace MenJinService
                 //接收数据包处理线程
                 if (!ThreadPool.QueueUserWorkItem(CheckRecDataQueue))
                     return false;
-                //发送数据包处理线程
-                if (!ThreadPool.QueueUserWorkItem(CheckSendDataQueue))
-                    return false;
+                //add3-7 合并发送数据包处理线程到接收线程中
                 if (!ThreadPool.QueueUserWorkItem(CheckDataBaseQueue))
                     return false;
 
@@ -149,7 +147,7 @@ namespace MenJinService
                 IsServerOpen = false;
                 
                 checkRecDataQueueResetEvent.WaitOne();
-                checkSendDataQueueResetEvent.WaitOne();
+                //checkSendDataQueueResetEvent.WaitOne();
                 CheckDataBaseQueueResetEvent.WaitOne();
 
                 ServerSocket.Dispose();
@@ -231,27 +229,7 @@ namespace MenJinService
                     foreach (DataItem dataItem in htClient.Values)
                     {
                         dataItem.HandleData();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine(ex);
-                }
-                Thread.Sleep(checkRecDataQueueTimeInterval); //当前数据处理线程休眠一段时间
-            }
-            checkRecDataQueueResetEvent.Set();
-        }
 
-        //发送队列里面的命令
-        private void CheckSendDataQueue(object state)
-        {
-            checkSendDataQueueResetEvent.Reset(); //Reset()将事件状态设置为非终止状态，导致线程阻止。
-            while (IsServerOpen)
-            {
-                try
-                {
-                    foreach (DataItem dataItem in htClient.Values)
-                    {
                         dataItem.SendData();
                         if (CheckTimeout(dataItem.HeartTime, maxTimeOut) && dataItem.status == true)
                         {
@@ -265,10 +243,9 @@ namespace MenJinService
                 {
                     System.Diagnostics.Debug.WriteLine(ex);
                 }
-
-                Thread.Sleep(checkSendDataQueueTimeInterval); //当前数据处理线程休眠一段时间
+                Thread.Sleep(checkRecDataQueueTimeInterval); //当前数据处理线程休眠一段时间
             }
-            checkSendDataQueueResetEvent.Set();
+            checkRecDataQueueResetEvent.Set();
         }
 
         //读取数据库命令线程
@@ -328,7 +305,25 @@ namespace MenJinService
                                         }
                                     //设置升级属性
                                     dataItem.tUpdate.IsNeedUpdate = true;
-
+                                }
+                                else if (cmdStrings[i, 1] == "generalCardID")
+                                {
+                                    if (cmdStrings[i, 2] == "write")
+                                    {
+                                        dataItem.tGeneralCardId.rw = 1;
+                                        dataItem.generalCardID = UtilClass.hexStrToByte(cmdStrings[i, 3]);
+                                        dataItem.tGeneralCardId.IsNeedSet = true;
+                                    }
+                                    else if (cmdStrings[i, 2] == "read")
+                                    {
+                                        dataItem.tGeneralCardId.rw = 0;
+                                        dataItem.tGeneralCardId.IsNeedSet = true;
+                                    }
+                                }
+                                else if (cmdStrings[i, 1] == "fingerID")
+                                {
+                                    dataItem.fingerID = UtilClass.hexStrToByte(cmdStrings[i, 3]);
+                                    dataItem.tFingerId.IsNeedSet = true;
                                 }
                                 else//普通指令可以直接构造并发送
                                 {                                   

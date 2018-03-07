@@ -121,6 +121,36 @@ namespace MenJinService
 
         }
 
+        //更新所有设备在线信息为false
+        public static string UpdateSensorInfo()
+        {
+            MySQLDB.InitDb();
+            string strResult = "";
+            MySqlParameter[] parmss = null;
+            string strSQL = "";
+            bool IsDelSuccess = false;
+            strSQL =
+                "Update tdevice SET status = 'False'";
+            try
+            {
+                IsDelSuccess = MySQLDB.ExecuteNonQry(strSQL, parmss);
+
+                if (IsDelSuccess != false)
+                {
+                    return "ok";
+                }
+                else
+                {
+                    return "fail";
+                }
+            }
+
+            catch (Exception ex)
+            {
+                return "fail";
+            }
+        }
+
         //更新设备信息
         public static string UpdateSensorInfo(string sensorintdeviceID, string updateItem, string updateNum)
         {
