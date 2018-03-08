@@ -28,9 +28,9 @@ namespace MenJinService
         private static Socket SendSocket;//用于发送
         public static byte[] buffer = new byte[1024 + 13];//socket缓冲区
 
-        private static int checkRecDataQueueTimeInterval = 50; // 检查接收数据包队列时间休息间隔(ms)
-        private static int checkSendDataQueueTimeInterval = 100; // 检查发送命令队列时间休息间隔(ms)
-        private static int checkDataBaseQueueTimeInterval = 500; // 检查数据库命令队列时间休息间隔(ms)
+        private static int checkRecDataQueueTimeInterval = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["checkRecDataQueueTimeInterval"]); // 检查接收数据包队列时间休息间隔(ms)
+        //private static int checkSendDataQueueTimeInterval = 100; // 检查发送命令队列时间休息间隔(ms)
+        private static int checkDataBaseQueueTimeInterval = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["checkDataBaseQueueTimeInterval"]); // 检查数据库命令队列时间休息间隔(ms)
 
         private static int updateDataLength = 256 * 1024;//升级文件大小
         private static int maxHistoryPackage = 2 * 1024 - 256;//刷卡记录的最大包数
@@ -322,8 +322,17 @@ namespace MenJinService
                                 }
                                 else if (cmdStrings[i, 1] == "fingerID")
                                 {
-                                    dataItem.fingerID = UtilClass.hexStrToByte(cmdStrings[i, 3]);
-                                    dataItem.tFingerId.IsNeedSet = true;
+                                    if (cmdStrings[i, 2] == "write")
+                                    {
+                                        dataItem.tFingerId.rw = 1;
+                                        dataItem.fingerID = UtilClass.hexStrToByte(cmdStrings[i, 3]);
+                                        dataItem.tFingerId.IsNeedSet = true;
+                                    }
+                                    else if (cmdStrings[i, 2] == "read")
+                                    {
+                                        dataItem.tFingerId.rw = 0;
+                                        dataItem.tFingerId.IsNeedSet = true;
+                                    }
                                 }
                                 else//普通指令可以直接构造并发送
                                 {                                   

@@ -444,11 +444,11 @@ namespace MenJinService
                             UtilClass.hex2String[datagramBytes[10]] + UtilClass.hex2String[datagramBytes[11]] +
                             UtilClass.hex2String[datagramBytes[12]]);
                         //门号, 高四位表示门号
-                        if ((datagramBytes[10 + 4] >> 4) == 0x00)
+                        if (datagramBytes[7] == 0x00)
                         {
                             door = "A";
                         }
-                        else if ((datagramBytes[10 + 4] >> 4) == 0x01)
+                        else if (datagramBytes[7] == 0x01)
                         {
                             door = "B";
                         }
@@ -472,6 +472,11 @@ namespace MenJinService
 
                     //远程开门，低a高b
                     case 0x20:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
                         break;
 
                     #endregion
