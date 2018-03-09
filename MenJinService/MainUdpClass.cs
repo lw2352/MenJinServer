@@ -133,6 +133,7 @@ namespace MenJinService
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                UtilClass.writeLog(e.ToString());
                 return false;
             }
         }
@@ -160,6 +161,7 @@ namespace MenJinService
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                UtilClass.writeLog(e.ToString());
                 return false;
             }
             
@@ -214,6 +216,7 @@ namespace MenJinService
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                UtilClass.writeLog(ex.ToString());
             }
         }
 
@@ -241,7 +244,8 @@ namespace MenJinService
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine(ex);
+                    Console.WriteLine(ex);
+                    UtilClass.writeLog(ex.ToString());
                 }
                 Thread.Sleep(checkRecDataQueueTimeInterval); //当前数据处理线程休眠一段时间
             }
@@ -350,6 +354,7 @@ namespace MenJinService
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine(ex);
                     UtilClass.writeLog(ex.ToString());
                 }
 

@@ -34,6 +34,8 @@ namespace MenJinService
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex);
+                UtilClass.writeLog(ex.ToString());
                 return "fail"; //数据库异常
             }
 
@@ -96,7 +98,7 @@ namespace MenJinService
 
                 };
                 parmss[0].Value = sensorintdeviceID;
-                parmss[1].Value = Convert.ToDateTime(sensorloginTime);
+                parmss[1].Value = sensorloginTime;
                 parmss[2].Value = sensorStatus;
 
                 try
@@ -115,6 +117,8 @@ namespace MenJinService
 
                 catch (Exception ex)
                 {
+                    Console.WriteLine(ex);
+                    UtilClass.writeLog(ex.ToString());
                     return "fail"; //数据库异常
                 }
             }
@@ -147,6 +151,8 @@ namespace MenJinService
 
             catch (Exception ex)
             {
+                Console.WriteLine(ex);
+                UtilClass.writeLog(ex.ToString());
                 return "fail";
             }
         }
@@ -185,6 +191,8 @@ namespace MenJinService
 
             catch (Exception ex)
             {
+                Console.WriteLine(ex);
+                UtilClass.writeLog(ex.ToString());
                 return "fail";
             }
         }
@@ -201,7 +209,7 @@ namespace MenJinService
             {
                 DataSet ds1 = new DataSet("tcommand");
                 string strSQL1 =
-                    "SELECT * FROM tcommand where (cmdName!='-1' AND cmdName!='ok')";
+                    "SELECT * FROM tcommand where (cmdName!='-1' AND cmdName!='ok' AND cmdName!='fail')";
                 ds1 = MySQLDB.SelectDataSet(strSQL1, null);
                 if (ds1 != null)
                 {
@@ -231,6 +239,8 @@ namespace MenJinService
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex);
+                UtilClass.writeLog(ex.ToString());
                 return null;
             }
         }
@@ -258,6 +268,8 @@ namespace MenJinService
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex);
+                UtilClass.writeLog(ex.ToString());
                 return "fail"; //数据库异常
             }
 
@@ -298,6 +310,8 @@ namespace MenJinService
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine(ex);
+                    UtilClass.writeLog(ex.ToString());
                     return "fail";
                 }
             }
@@ -333,7 +347,8 @@ namespace MenJinService
             }
             catch (Exception ex)
             {
-
+                Console.WriteLine(ex);
+                UtilClass.writeLog(ex.ToString());
                 return "fail";
             }
         }
@@ -363,7 +378,8 @@ namespace MenJinService
             }
             catch (Exception ex)
             {
-
+                Console.WriteLine(ex);
+                UtilClass.writeLog(ex.ToString());
                 return "fail";
             }
         }
@@ -402,6 +418,8 @@ namespace MenJinService
 
             catch (Exception ex)
             {
+                Console.WriteLine(ex);
+                UtilClass.writeLog(ex.ToString());
                 return "fail";
             }
         }
@@ -440,6 +458,8 @@ namespace MenJinService
 
             catch (Exception ex)
             {
+                Console.WriteLine(ex);
+                UtilClass.writeLog(ex.ToString());
                 return "fail";
             }
         }

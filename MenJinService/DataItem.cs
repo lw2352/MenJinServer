@@ -106,7 +106,6 @@ namespace MenJinService
         //处理数据和写入数据库
         public void AnalyzeData(byte[] datagramBytes)
         {
-            string msg;
             try
             {
                 switch (datagramBytes[2])
@@ -132,6 +131,9 @@ namespace MenJinService
                             }
 
                             tHistory.currentNum++;//当前读取包数加1
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data", UtilClass.hex2String[tHistory.currentNum]);
+
                             if (tHistory.currentNum == maxHistoryPackage)//读到尾部了
                             {
                                 tHistory.IsNeedHistory = false;
@@ -195,6 +197,8 @@ namespace MenJinService
                             if (datagramBytes[10] == 0x55)
                             {
                                 tUpdate.currentNum++;
+                                //写入数据库
+                                DbClass.UpdateCmd(strID, "data", UtilClass.hex2String[tUpdate.currentNum]);
                             }
                             else if (datagramBytes[10] == 0xAA)
                             {
@@ -239,6 +243,11 @@ namespace MenJinService
                             //写入数据库
                             DbClass.UpdateCmd(strID, "cmdName", "ok");
                         }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
                         else if (datagramBytes[7] == 0x00)
                         {
                             //写入数据库
@@ -256,6 +265,11 @@ namespace MenJinService
                             //写入数据库
                             DbClass.UpdateCmd(strID, "cmdName", "ok");
                         }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
                         else if (datagramBytes[7] == 0x00)
                         {
                             //写入数据库
@@ -272,6 +286,11 @@ namespace MenJinService
                             //写入数据库
                             DbClass.UpdateCmd(strID, "cmdName", "ok");
                         }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
                         else if (datagramBytes[7] == 0x00)
                         {
                             //写入数据库
@@ -286,6 +305,11 @@ namespace MenJinService
                         {
                             //写入数据库
                             DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
                         }
                         else if (datagramBytes[7] == 0x00)
                         {
@@ -307,6 +331,11 @@ namespace MenJinService
                             //写入数据库
                             DbClass.UpdateCmd(strID, "cmdName", "ok");
                         }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
                         else if (datagramBytes[7] == 0x00)
                         {
                             //写入数据库
@@ -321,6 +350,11 @@ namespace MenJinService
                         {
                             //写入数据库
                             DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
                         }
                         else if (datagramBytes[7] == 0x00)
                         {
@@ -337,6 +371,11 @@ namespace MenJinService
                             //写入数据库
                             DbClass.UpdateCmd(strID, "cmdName", "ok");
                         }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
                         else if (datagramBytes[7] == 0x00)
                         {
                             //写入数据库
@@ -352,6 +391,11 @@ namespace MenJinService
                             //写入数据库
                             DbClass.UpdateCmd(strID, "cmdName", "ok");
                         }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
                         else if (datagramBytes[7] == 0x00)
                         {
                             //写入数据库
@@ -361,11 +405,310 @@ namespace MenJinService
                         break;
                     #endregion
 
-                    #region 8个开门方式的配置
-
-
+                    #region 8个开门方式的配置开关，0-关，1-开,互锁、首卡、多重卡不能同时开启
+                    //互锁
+                    case 0x0D:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]]);
+                        }
+                        break;
+                    //首卡
+                    case 0x0E:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]]);
+                        }
+                        break;
+                    //多重卡
+                    case 0x0F:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]]);
+                        }
+                        break;
+                    //超级卡
+                    case 0x10:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]]);
+                        }
+                        break;
+                    //超级密码
+                    case 0x11:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]]);
+                        }
+                        break;
+                    //胁迫卡
+                    case 0x12:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]]);
+                        }
+                        break;
+                    //胁迫码
+                    case 0x13:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]]);
+                        }
+                        break;
+                    //指纹模块
+                    case 0x14:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]]);
+                        }
+                        break;
                     #endregion
 
+                    #region 多种开门方式的卡号配置
+                    //首卡
+                    case 0x15:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]] + UtilClass.hex2String[datagramBytes[11]] +
+                                UtilClass.hex2String[datagramBytes[12]]);
+                        }
+                        break;
+                    //超级卡
+                    case 0x16:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]] + UtilClass.hex2String[datagramBytes[11]] +
+                                UtilClass.hex2String[datagramBytes[12]]);
+                        }
+                        break;
+                    //超级密码
+                    case 0x17:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]] + UtilClass.hex2String[datagramBytes[11]] +
+                                UtilClass.hex2String[datagramBytes[12]]);
+                        }
+                        break;
+                    //胁迫卡，3张
+                    case 0x18:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]] + UtilClass.hex2String[datagramBytes[11]] +
+                                UtilClass.hex2String[datagramBytes[12]] + UtilClass.hex2String[datagramBytes[13]] +
+                                UtilClass.hex2String[datagramBytes[14]] +
+                                UtilClass.hex2String[datagramBytes[15]] + UtilClass.hex2String[datagramBytes[16]] +
+                                UtilClass.hex2String[datagramBytes[17]] +
+                                UtilClass.hex2String[datagramBytes[18]]);
+                        }
+                        break;
+                    //胁迫码
+                    case 0x19:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]] + UtilClass.hex2String[datagramBytes[11]] +
+                                UtilClass.hex2String[datagramBytes[12]]);
+                        }
+                        break;
+                    //按键密码
+                    case 0x1A:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data",
+                                UtilClass.hex2String[datagramBytes[10]] + UtilClass.hex2String[datagramBytes[11]] +
+                                UtilClass.hex2String[datagramBytes[12]]);
+                        }
+                        break;
+                    //多重卡,10张
+                    case 0x1B:
+                        if (datagramBytes[10] == 0x55)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                        }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
+                        else if (datagramBytes[7] == 0x00)
+                        {
+                            byte[] tenCard = new byte[30];
+                            Array.Copy(datagramBytes, 10, tenCard, 0, 30);
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "data", UtilClass.byteToHexStr(tenCard));
+                        }
+                        break;
+
+
+
+                    #endregion                   
 
                     #region 普通卡和指纹的配置  
                     case 0x1D://普通卡，第9个字节表示第几包
@@ -468,6 +811,11 @@ namespace MenJinService
                             //写入数据库
                             DbClass.UpdateCmd(strID, "cmdName", "ok");
                         }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
                         break;
 
                     //远程开门，低a高b
@@ -502,9 +850,10 @@ namespace MenJinService
                     SendCmd(SetFingerID(tFingerId.currentNum, tFingerId.rw));
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(ex);
+                UtilClass.writeLog(ex.ToString());
             }
             Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "硬件"+strID+"收到数据："+UtilClass.byteToHexStr(datagramBytes));
         }
@@ -523,6 +872,7 @@ namespace MenJinService
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                UtilClass.writeLog(ex.ToString());
             }
         }
 
@@ -540,6 +890,7 @@ namespace MenJinService
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                UtilClass.writeLog(ex.ToString());
             }
         }
 
