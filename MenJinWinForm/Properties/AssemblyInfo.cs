@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // 有关程序集的一般信息由以下
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("MenJinService")]
-[assembly: AssemblyDescription("威派门禁后台服务")]
+[assembly: AssemblyTitle("MenJinWinForm")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("威派科技")]
-[assembly: AssemblyProduct("MenJinService")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("MenJinWinForm")]
 [assembly: AssemblyCopyright("Copyright ©  2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // 如果此项目向 COM 公开，则下列 GUID 用于类型库的 ID
-[assembly: Guid("c2f507a7-2fa1-44a7-9524-573789ea533a")]
+[assembly: Guid("f71cb5dc-ace8-4a7e-9c94-405d9192ff7a")]
 
 // 程序集的版本信息由下列四个值组成: 
 //
