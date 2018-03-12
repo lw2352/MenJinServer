@@ -28,6 +28,8 @@ namespace MenJinService
 
             HostFactory.Run(x =>
             {
+                x.UseLog4Net("log4netMySql.config");
+
                 //使用 TownCrier 类，配置服务事件  
                 x.Service<MainUdpClass>(s =>
                 {

@@ -3,9 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Topshelf.Logging;
 
-namespace MenJinService
+namespace MenJinWinForm
 {
     /// <summary>
     /// 工具函数类
@@ -13,8 +12,8 @@ namespace MenJinService
     class UtilClass
     {
 
-        private static readonly log4net.ILog log =
-            log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+       // private static readonly log4net.ILog log =
+            //log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public static string[] hex2String = new string[256];
         private static Hashtable htStrToHex = new Hashtable(); //str--hex
@@ -28,7 +27,6 @@ namespace MenJinService
             Console.WriteLine(msg + "\r\n");
 
             //log.Info(msg);
-            HostLogger.Get<UtilClass>().Info(msg);
         }
 
         /// <summary>

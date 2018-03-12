@@ -65,6 +65,9 @@
     <Reference Include="Topshelf">
       <HintPath>libs\Topshelf\Topshelf.dll</HintPath>
     </Reference>
+    <Reference Include="Topshelf.Log4Net">
+      <HintPath>libs\Topshelf\Topshelf.Log4Net.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CmdClass.cs" />
