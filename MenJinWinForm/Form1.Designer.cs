@@ -29,8 +29,6 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.textBox_selected = new System.Windows.Forms.TextBox();
             this.button_select = new System.Windows.Forms.Button();
             this.button_search = new System.Windows.Forms.Button();
             this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
@@ -46,6 +44,12 @@
             this.listBox_history = new System.Windows.Forms.ListBox();
             this.checkedListBox_card = new System.Windows.Forms.CheckedListBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.button_update = new System.Windows.Forms.Button();
+            this.textBox_update = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.comboBox_remoteOpen = new System.Windows.Forms.ComboBox();
+            this.button_remoteOpen = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
             this.button_readOpenTime = new System.Windows.Forms.Button();
             this.button_setOpenTime = new System.Windows.Forms.Button();
             this.textBox_openTime = new System.Windows.Forms.TextBox();
@@ -54,12 +58,11 @@
             this.button_setTime = new System.Windows.Forms.Button();
             this.textBox_time = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.button_remoteOpen = new System.Windows.Forms.Button();
-            this.label5 = new System.Windows.Forms.Label();
-            this.comboBox_remoteOpen = new System.Windows.Forms.ComboBox();
-            this.button_update = new System.Windows.Forms.Button();
-            this.textBox_update = new System.Windows.Forms.TextBox();
-            this.label6 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.textBox_selected = new System.Windows.Forms.TextBox();
+            this.button_reboot = new System.Windows.Forms.Button();
+            this.label7 = new System.Windows.Forms.Label();
+            this.textBox_updateProgress = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -67,8 +70,6 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Controls.Add(this.textBox_selected);
             this.groupBox1.Controls.Add(this.button_select);
             this.groupBox1.Controls.Add(this.button_search);
             this.groupBox1.Controls.Add(this.checkedListBox1);
@@ -78,22 +79,6 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "搜索设备";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 475);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(95, 12);
-            this.label2.TabIndex = 6;
-            this.label2.Text = "当前操作设备ID:";
-            // 
-            // textBox_selected
-            // 
-            this.textBox_selected.Location = new System.Drawing.Point(7, 490);
-            this.textBox_selected.Name = "textBox_selected";
-            this.textBox_selected.Size = new System.Drawing.Size(105, 21);
-            this.textBox_selected.TabIndex = 5;
             // 
             // button_select
             // 
@@ -125,6 +110,8 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.label2);
+            this.groupBox2.Controls.Add(this.textBox_selected);
             this.groupBox2.Controls.Add(this.button_deSelectAll);
             this.groupBox2.Controls.Add(this.button_SelectAll);
             this.groupBox2.Controls.Add(this.button_addCard);
@@ -164,7 +151,7 @@
             // 
             // button_addCard
             // 
-            this.button_addCard.Location = new System.Drawing.Point(192, 21);
+            this.button_addCard.Location = new System.Drawing.Point(193, 51);
             this.button_addCard.Name = "button_addCard";
             this.button_addCard.Size = new System.Drawing.Size(58, 23);
             this.button_addCard.TabIndex = 5;
@@ -184,7 +171,7 @@
             // 
             // textBox_cardNow
             // 
-            this.textBox_cardNow.Location = new System.Drawing.Point(81, 21);
+            this.textBox_cardNow.Location = new System.Drawing.Point(82, 51);
             this.textBox_cardNow.Name = "textBox_cardNow";
             this.textBox_cardNow.Size = new System.Drawing.Size(105, 21);
             this.textBox_cardNow.TabIndex = 4;
@@ -192,7 +179,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(4, 24);
+            this.label1.Location = new System.Drawing.Point(6, 56);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(71, 12);
             this.label1.TabIndex = 3;
@@ -230,13 +217,16 @@
             // checkedListBox_card
             // 
             this.checkedListBox_card.FormattingEnabled = true;
-            this.checkedListBox_card.Location = new System.Drawing.Point(6, 64);
+            this.checkedListBox_card.Location = new System.Drawing.Point(6, 80);
             this.checkedListBox_card.Name = "checkedListBox_card";
-            this.checkedListBox_card.Size = new System.Drawing.Size(200, 532);
+            this.checkedListBox_card.Size = new System.Drawing.Size(245, 516);
             this.checkedListBox_card.TabIndex = 0;
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.textBox_updateProgress);
+            this.groupBox3.Controls.Add(this.label7);
+            this.groupBox3.Controls.Add(this.button_reboot);
             this.groupBox3.Controls.Add(this.button_update);
             this.groupBox3.Controls.Add(this.textBox_update);
             this.groupBox3.Controls.Add(this.label6);
@@ -257,6 +247,59 @@
             this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "参数配置";
+            // 
+            // button_update
+            // 
+            this.button_update.Location = new System.Drawing.Point(174, 246);
+            this.button_update.Name = "button_update";
+            this.button_update.Size = new System.Drawing.Size(58, 23);
+            this.button_update.TabIndex = 19;
+            this.button_update.Text = "确定";
+            this.button_update.UseVisualStyleBackColor = true;
+            this.button_update.Click += new System.EventHandler(this.button_update_Click);
+            // 
+            // textBox_update
+            // 
+            this.textBox_update.Location = new System.Drawing.Point(6, 221);
+            this.textBox_update.Name = "textBox_update";
+            this.textBox_update.Size = new System.Drawing.Size(305, 21);
+            this.textBox_update.TabIndex = 18;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(9, 206);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(83, 12);
+            this.label6.TabIndex = 17;
+            this.label6.Text = "升级文件路径:";
+            // 
+            // comboBox_remoteOpen
+            // 
+            this.comboBox_remoteOpen.FormattingEnabled = true;
+            this.comboBox_remoteOpen.Location = new System.Drawing.Point(67, 165);
+            this.comboBox_remoteOpen.Name = "comboBox_remoteOpen";
+            this.comboBox_remoteOpen.Size = new System.Drawing.Size(114, 20);
+            this.comboBox_remoteOpen.TabIndex = 16;
+            // 
+            // button_remoteOpen
+            // 
+            this.button_remoteOpen.Location = new System.Drawing.Point(194, 165);
+            this.button_remoteOpen.Name = "button_remoteOpen";
+            this.button_remoteOpen.Size = new System.Drawing.Size(58, 23);
+            this.button_remoteOpen.TabIndex = 15;
+            this.button_remoteOpen.Text = "确定";
+            this.button_remoteOpen.UseVisualStyleBackColor = true;
+            this.button_remoteOpen.Click += new System.EventHandler(this.button_remoteOpen_Click);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(6, 168);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(59, 12);
+            this.label5.TabIndex = 14;
+            this.label5.Text = "远程开门:";
             // 
             // button_readOpenTime
             // 
@@ -330,61 +373,47 @@
             this.label3.TabIndex = 6;
             this.label3.Text = "设置开门时间长度(秒,01至FF):";
             // 
-            // button_remoteOpen
+            // label2
             // 
-            this.button_remoteOpen.Location = new System.Drawing.Point(194, 165);
-            this.button_remoteOpen.Name = "button_remoteOpen";
-            this.button_remoteOpen.Size = new System.Drawing.Size(58, 23);
-            this.button_remoteOpen.TabIndex = 15;
-            this.button_remoteOpen.Text = "确定";
-            this.button_remoteOpen.UseVisualStyleBackColor = true;
-            this.button_remoteOpen.Click += new System.EventHandler(this.button_remoteOpen_Click);
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 27);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(95, 12);
+            this.label2.TabIndex = 9;
+            this.label2.Text = "当前操作设备ID:";
             // 
-            // label5
+            // textBox_selected
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 168);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(59, 12);
-            this.label5.TabIndex = 14;
-            this.label5.Text = "远程开门:";
+            this.textBox_selected.Location = new System.Drawing.Point(107, 24);
+            this.textBox_selected.Name = "textBox_selected";
+            this.textBox_selected.Size = new System.Drawing.Size(105, 21);
+            this.textBox_selected.TabIndex = 8;
             // 
-            // comboBox_remoteOpen
+            // button_reboot
             // 
-            this.comboBox_remoteOpen.FormattingEnabled = true;
-            this.comboBox_remoteOpen.Location = new System.Drawing.Point(67, 165);
-            this.comboBox_remoteOpen.Name = "comboBox_remoteOpen";
-            this.comboBox_remoteOpen.Size = new System.Drawing.Size(114, 20);
-            this.comboBox_remoteOpen.TabIndex = 16;
+            this.button_reboot.Location = new System.Drawing.Point(238, 246);
+            this.button_reboot.Name = "button_reboot";
+            this.button_reboot.Size = new System.Drawing.Size(50, 23);
+            this.button_reboot.TabIndex = 20;
+            this.button_reboot.Text = "重启";
+            this.button_reboot.UseVisualStyleBackColor = true;
+            this.button_reboot.Click += new System.EventHandler(this.button_reboot_Click);
             // 
-            // button_update
+            // label7
             // 
-            this.button_update.Location = new System.Drawing.Point(194, 221);
-            this.button_update.Name = "button_update";
-            this.button_update.Size = new System.Drawing.Size(58, 23);
-            this.button_update.TabIndex = 19;
-            this.button_update.Text = "确定";
-            this.button_update.UseVisualStyleBackColor = true;
-            this.button_update.Visible = false;
-            this.button_update.Click += new System.EventHandler(this.button_update_Click);
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(9, 253);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(59, 12);
+            this.label7.TabIndex = 21;
+            this.label7.Text = "升级进度:";
             // 
-            // textBox_update
+            // textBox_updateProgress
             // 
-            this.textBox_update.Location = new System.Drawing.Point(6, 221);
-            this.textBox_update.Name = "textBox_update";
-            this.textBox_update.Size = new System.Drawing.Size(182, 21);
-            this.textBox_update.TabIndex = 18;
-            this.textBox_update.Visible = false;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(9, 206);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(83, 12);
-            this.label6.TabIndex = 17;
-            this.label6.Text = "升级文件路径:";
-            this.label6.Visible = false;
+            this.textBox_updateProgress.Location = new System.Drawing.Point(69, 248);
+            this.textBox_updateProgress.Name = "textBox_updateProgress";
+            this.textBox_updateProgress.Size = new System.Drawing.Size(81, 21);
+            this.textBox_updateProgress.TabIndex = 22;
             // 
             // Form1
             // 
@@ -401,7 +430,6 @@
             this.Text = "门禁demo";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
@@ -425,8 +453,6 @@
         private System.Windows.Forms.Button button_addCard;
         private System.Windows.Forms.TextBox textBox_cardNow;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox textBox_selected;
         private System.Windows.Forms.Button button_select;
         private System.Windows.Forms.Button button_deSelectAll;
         private System.Windows.Forms.Button button_SelectAll;
@@ -444,6 +470,11 @@
         private System.Windows.Forms.TextBox textBox_update;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.ComboBox comboBox_remoteOpen;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox textBox_selected;
+        private System.Windows.Forms.Button button_reboot;
+        private System.Windows.Forms.TextBox textBox_updateProgress;
+        private System.Windows.Forms.Label label7;
     }
 }
 

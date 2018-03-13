@@ -35,8 +35,8 @@ namespace MenJinWinForm
                         }
 
                         //重置字段为-1,add3-5
-                        string strSQL2 = "UPDATE tdevice SET cardID_now = '-1'";
-                        ds1 = MySQLDB.SelectDataSet(strSQL2, null);
+                        //string strSQL2 = "UPDATE tdevice SET cardID_now = '-1'";
+                        //ds1 = MySQLDB.SelectDataSet(strSQL2, null);
                         return ret;
                     }
                     else return null;

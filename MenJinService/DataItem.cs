@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -196,9 +197,9 @@ namespace MenJinService
                         {
                             if (datagramBytes[10] == 0x55)
                             {
-                                tUpdate.currentNum++;
                                 //写入数据库
                                 DbClass.UpdateCmd(strID, "data", UtilClass.hex2String[tUpdate.currentNum]);
+                                tUpdate.currentNum++;                                
                             }
                             else if (datagramBytes[10] == 0xAA)
                             {
@@ -831,6 +832,11 @@ namespace MenJinService
                             //写入数据库
                             DbClass.UpdateCmd(strID, "cmdName", "ok");
                         }
+                        else if (datagramBytes[10] == 0xAA)
+                        {
+                            //写入数据库
+                            DbClass.UpdateCmd(strID, "cmdName", "fail");
+                        }
                         break;
 
                     #endregion
@@ -843,8 +849,8 @@ namespace MenJinService
                     SendCmd(SetHisCmd(tHistory.currentNum));
                 }
                 if (tUpdate.IsNeedUpdate == true)
-                {
-                    SendCmd(SetUpdateCmd(tUpdate.currentNum));
+                {    
+                     SendCmd(SetUpdateCmd(tUpdate.currentNum));
                 }
 
                 if (tGeneralCardId.IsNeedSet == true)

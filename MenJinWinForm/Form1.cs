@@ -23,7 +23,8 @@ namespace MenJinWinForm
         writeTime,
         readTime,
         remoteOpen,
-        update
+        update,
+        reboot
     }
     public partial class Form1 : Form
     {
@@ -41,7 +42,8 @@ namespace MenJinWinForm
         {
             comboBox_remoteOpen.Items.Add("A");
             comboBox_remoteOpen.Items.Add("B");
-            comboBox_remoteOpen.Items.Add("AB");
+
+            textBox_update.Text = @"F:\LW_files\stm32F1\MenJin\MenJinProject\Project\MDK-ARM(uV4)\Flash\Obj\output.bin";
 
             UtilClass.utilInit();
             MySQLDB.m_strConn = System.Configuration.ConfigurationManager.AppSettings["ServerDB"];
@@ -249,6 +251,45 @@ namespace MenJinWinForm
                         }
                         break;
 
+                    case State.update:
+                        //查询命令执行结果
+                        if (strCheckedID != "")
+                        {
+                            string[,] ret = winFormDbClass.readCmd(strCheckedID);
+                            textBox_updateProgress.Text = ret[0, 1];
+                            if (ret[0, 0] == "ok")
+                            {
+                                state = State.idle;
+                                MessageBox.Show("成功");
+                            }
+                            else if (ret[0, 0] == "fail")
+                            {
+                                state = State.idle;
+                                MessageBox.Show("失败");
+                            }
+                        }
+                        break;
+
+                    case State.reboot:
+                        //查询命令执行结果
+                        if (strCheckedID != "")
+                        {
+                            string[,] ret = winFormDbClass.readCmd(strCheckedID);
+
+                            if (ret[0, 0] == "ok")
+                            {
+                                state = State.idle;
+                                MessageBox.Show("成功");
+                            }
+                            else if (ret[0, 0] == "fail")
+                            {
+                                state = State.idle;
+                                MessageBox.Show("失败");
+                            }
+                        }
+                        break;
+
+
                     default:
                         break;
                 }
@@ -419,10 +460,6 @@ namespace MenJinWinForm
                         winFormDbClass.UpdateCmd(strCheckedID, "cmdName", "operation", "data", "remoteOpen", "write", "10");
                         break;
 
-                    case 2:
-                        winFormDbClass.UpdateCmd(strCheckedID, "cmdName", "operation", "data", "remoteOpen", "write", "11");
-                        break;
-
                     default:
                         break;
                 }
@@ -437,6 +474,15 @@ namespace MenJinWinForm
             {
                 winFormDbClass.UpdateCmd(strCheckedID, "cmdName", "operation", "data", "update", "write", textBox_update.Text);
                 state = State.update;
+            }
+        }
+
+        private void button_reboot_Click(object sender, EventArgs e)
+        {
+            if (strCheckedID != "")
+            {
+                winFormDbClass.UpdateCmd(strCheckedID, "cmdName", "operation", "data", "reboot", "write", "00");
+                state = State.reboot;
             }
         }
     }
