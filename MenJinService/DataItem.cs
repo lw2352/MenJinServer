@@ -251,11 +251,12 @@ namespace MenJinService
                         else if (datagramBytes[7] == 0x00)
                         {
                             //写入数据库
-                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                            
                             DbClass.UpdateCmd(strID, "data",
                                 UtilClass.hex2String[datagramBytes[10]] + UtilClass.hex2String[datagramBytes[11]] +
                                 UtilClass.hex2String[datagramBytes[12]] + UtilClass.hex2String[datagramBytes[13]] +
                                 UtilClass.hex2String[datagramBytes[14]]);
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");//命令执行成功
                         }
                         break;
 
@@ -274,10 +275,11 @@ namespace MenJinService
                         else if (datagramBytes[7] == 0x00)
                         {
                             //写入数据库
-                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                            
                             DbClass.UpdateCmd(strID, "data",
                                 UtilClass.hex2String[datagramBytes[10]] + UtilClass.hex2String[datagramBytes[11]] +
                                 UtilClass.hex2String[datagramBytes[12]] + UtilClass.hex2String[datagramBytes[13]]);
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");//命令执行成功
                         }
                         break;
 
@@ -296,9 +298,10 @@ namespace MenJinService
                         else if (datagramBytes[7] == 0x00)
                         {
                             //写入数据库
-                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                            
                             DbClass.UpdateCmd(strID, "data",
                                 UtilClass.hex2String[datagramBytes[10]]);
+                            DbClass.UpdateCmd(strID, "cmdName", "ok");//命令执行成功
                         }
                         break;
 

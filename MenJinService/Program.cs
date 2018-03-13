@@ -1,4 +1,4 @@
-﻿using log4net.Config;
+﻿
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,9 +23,6 @@ namespace MenJinService
 
         static void Main(string[] args)
         {
-            var logCfg = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "log4netMySql.config");
-            XmlConfigurator.ConfigureAndWatch(logCfg);
-
             HostFactory.Run(x =>
             {
                 x.UseLog4Net("log4netMySql.config");

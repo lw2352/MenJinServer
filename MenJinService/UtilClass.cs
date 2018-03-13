@@ -13,8 +13,8 @@ namespace MenJinService
     class UtilClass
     {
 
-        private static readonly log4net.ILog log =
-            log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        //private static readonly log4net.ILog log =
+            //log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public static string[] hex2String = new string[256];
         private static Hashtable htStrToHex = new Hashtable(); //str--hex
@@ -50,15 +50,24 @@ namespace MenJinService
         /// <returns></returns>
         public static string byteToHexStr(byte[] bytes)
         {
-            string returnStr = "";
-            if (bytes != null)
+            try
             {
-                for (int i = 0; i < bytes.Length; i++)
+                string returnStr = "";
+                if (bytes != null)
                 {
-                    returnStr += hex2String[bytes[i]];
+                    for (int i = 0; i < bytes.Length; i++)
+                    {
+                        returnStr += hex2String[bytes[i]];
+                    }
                 }
+                return returnStr;
             }
-            return returnStr;
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            
         }
 
         /// <summary>
@@ -68,16 +77,23 @@ namespace MenJinService
         /// <returns></returns>
         public static byte[] hexStrToByte(string str)
         {
-            byte[] bytes = new byte[str.Length/2];
-            string a;
-            for (int i = 0,j=0; i < str.Length; i++,i++,j++)
+            try
             {
-                a= str.Substring(i, 2);
-                bytes[j] = (byte)htStrToHex[a];
+                byte[] bytes = new byte[str.Length / 2];
+                string a;
+                for (int i = 0, j = 0; i < str.Length; i++, i++, j++)
+                {
+                    a = str.Substring(i, 2);
+                    bytes[j] = (byte)htStrToHex[a];
+                }
+
+                return bytes;
             }
-
-            return bytes;
-
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }          
         }
 
 

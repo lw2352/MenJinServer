@@ -21,7 +21,9 @@ namespace MenJinWinForm
         writeOpenTime,
         readOpenTime,
         writeTime,
-        readTime
+        readTime,
+        remoteOpen,
+        update
     }
     public partial class Form1 : Form
     {
@@ -35,9 +37,13 @@ namespace MenJinWinForm
             System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = false;//设置该属性 为false
         }
 
-    private void Form1_Load(object sender, EventArgs e)
+        private void Form1_Load(object sender, EventArgs e)
         {
-            UtilClass.utilInit();    
+            comboBox_remoteOpen.Items.Add("A");
+            comboBox_remoteOpen.Items.Add("B");
+            comboBox_remoteOpen.Items.Add("AB");
+
+            UtilClass.utilInit();
             MySQLDB.m_strConn = System.Configuration.ConfigurationManager.AppSettings["ServerDB"];
             //设置定时器
             state = State.idle;
@@ -174,7 +180,8 @@ namespace MenJinWinForm
                             if (ret[0, 0] == "ok")
                             {
                                 state = State.idle;
-                                MessageBox.Show("成功");
+                                MessageBox.Show(ret[0, 1]);
+                                //MessageBox.Show("成功");
                             }
                             else if (ret[0, 0] == "fail")
                             {
@@ -193,7 +200,6 @@ namespace MenJinWinForm
                             if (ret[0, 0] == "ok")
                             {
                                 state = State.idle;
-                                MessageBox.Show(ret[0, 1]);
                                 MessageBox.Show("成功");
                             }
                             else if (ret[0, 0] == "fail")
@@ -214,6 +220,25 @@ namespace MenJinWinForm
                             {                                
                                 state = State.idle;
                                 MessageBox.Show(ret[0, 1]);
+                                //MessageBox.Show("成功");
+                            }
+                            else if (ret[0, 0] == "fail")
+                            {
+                                state = State.idle;
+                                MessageBox.Show("失败");
+                            }
+                        }
+                        break;
+
+                    case State.remoteOpen:
+                        //查询命令执行结果
+                        if (strCheckedID != "")
+                        {
+                            string[,] ret = winFormDbClass.readCmd(strCheckedID);
+
+                            if (ret[0, 0] == "ok")
+                            {
+                                state = State.idle;
                                 MessageBox.Show("成功");
                             }
                             else if (ret[0, 0] == "fail")
@@ -377,6 +402,41 @@ namespace MenJinWinForm
                     winFormDbClass.UpdateCmd(strCheckedID, "cmdName", "operation", "data", "openTime", "read", "00");
                     state = State.readOpenTime;
                 //}
+            }
+        }
+
+        private void button_remoteOpen_Click(object sender, EventArgs e)
+        {
+            if (strCheckedID != "")
+            {
+                switch (comboBox_remoteOpen.SelectedIndex)
+                {
+                    case 0:
+                        winFormDbClass.UpdateCmd(strCheckedID, "cmdName", "operation", "data", "remoteOpen", "write", "01");
+                        break;
+
+                    case 1:
+                        winFormDbClass.UpdateCmd(strCheckedID, "cmdName", "operation", "data", "remoteOpen", "write", "10");
+                        break;
+
+                    case 2:
+                        winFormDbClass.UpdateCmd(strCheckedID, "cmdName", "operation", "data", "remoteOpen", "write", "11");
+                        break;
+
+                    default:
+                        break;
+                }
+                state = State.remoteOpen;
+
+            }
+        }
+
+        private void button_update_Click(object sender, EventArgs e)
+        {
+            if (strCheckedID != "")
+            {
+                winFormDbClass.UpdateCmd(strCheckedID, "cmdName", "operation", "data", "update", "write", textBox_update.Text);
+                state = State.update;
             }
         }
     }

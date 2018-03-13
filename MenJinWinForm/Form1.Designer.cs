@@ -46,14 +46,20 @@
             this.listBox_history = new System.Windows.Forms.ListBox();
             this.checkedListBox_card = new System.Windows.Forms.CheckedListBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.button_setTime = new System.Windows.Forms.Button();
-            this.textBox_time = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.button_readTime = new System.Windows.Forms.Button();
             this.button_readOpenTime = new System.Windows.Forms.Button();
             this.button_setOpenTime = new System.Windows.Forms.Button();
             this.textBox_openTime = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
+            this.button_readTime = new System.Windows.Forms.Button();
+            this.button_setTime = new System.Windows.Forms.Button();
+            this.textBox_time = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.button_remoteOpen = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
+            this.comboBox_remoteOpen = new System.Windows.Forms.ComboBox();
+            this.button_update = new System.Windows.Forms.Button();
+            this.textBox_update = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -231,6 +237,12 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.button_update);
+            this.groupBox3.Controls.Add(this.textBox_update);
+            this.groupBox3.Controls.Add(this.label6);
+            this.groupBox3.Controls.Add(this.comboBox_remoteOpen);
+            this.groupBox3.Controls.Add(this.button_remoteOpen);
+            this.groupBox3.Controls.Add(this.label5);
             this.groupBox3.Controls.Add(this.button_readOpenTime);
             this.groupBox3.Controls.Add(this.button_setOpenTime);
             this.groupBox3.Controls.Add(this.textBox_openTime);
@@ -245,42 +257,6 @@
             this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "参数配置";
-            // 
-            // button_setTime
-            // 
-            this.button_setTime.Location = new System.Drawing.Point(98, 117);
-            this.button_setTime.Name = "button_setTime";
-            this.button_setTime.Size = new System.Drawing.Size(52, 23);
-            this.button_setTime.TabIndex = 8;
-            this.button_setTime.Text = "确定";
-            this.button_setTime.UseVisualStyleBackColor = true;
-            this.button_setTime.Click += new System.EventHandler(this.button_setTime_Click);
-            // 
-            // textBox_time
-            // 
-            this.textBox_time.Location = new System.Drawing.Point(11, 118);
-            this.textBox_time.Name = "textBox_time";
-            this.textBox_time.Size = new System.Drawing.Size(81, 21);
-            this.textBox_time.TabIndex = 7;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(8, 27);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(173, 12);
-            this.label3.TabIndex = 6;
-            this.label3.Text = "设置开门时间长度(秒,01至FF):";
-            // 
-            // button_readTime
-            // 
-            this.button_readTime.Location = new System.Drawing.Point(156, 117);
-            this.button_readTime.Name = "button_readTime";
-            this.button_readTime.Size = new System.Drawing.Size(52, 23);
-            this.button_readTime.TabIndex = 9;
-            this.button_readTime.Text = "读取";
-            this.button_readTime.UseVisualStyleBackColor = true;
-            this.button_readTime.Click += new System.EventHandler(this.button_readTime_Click);
             // 
             // button_readOpenTime
             // 
@@ -317,6 +293,98 @@
             this.label4.Size = new System.Drawing.Size(269, 12);
             this.label4.TabIndex = 10;
             this.label4.Text = "设置时间(例1203051423(2018年3月5日14时23分):";
+            // 
+            // button_readTime
+            // 
+            this.button_readTime.Location = new System.Drawing.Point(156, 117);
+            this.button_readTime.Name = "button_readTime";
+            this.button_readTime.Size = new System.Drawing.Size(52, 23);
+            this.button_readTime.TabIndex = 9;
+            this.button_readTime.Text = "读取";
+            this.button_readTime.UseVisualStyleBackColor = true;
+            this.button_readTime.Click += new System.EventHandler(this.button_readTime_Click);
+            // 
+            // button_setTime
+            // 
+            this.button_setTime.Location = new System.Drawing.Point(98, 117);
+            this.button_setTime.Name = "button_setTime";
+            this.button_setTime.Size = new System.Drawing.Size(52, 23);
+            this.button_setTime.TabIndex = 8;
+            this.button_setTime.Text = "确定";
+            this.button_setTime.UseVisualStyleBackColor = true;
+            this.button_setTime.Click += new System.EventHandler(this.button_setTime_Click);
+            // 
+            // textBox_time
+            // 
+            this.textBox_time.Location = new System.Drawing.Point(11, 118);
+            this.textBox_time.Name = "textBox_time";
+            this.textBox_time.Size = new System.Drawing.Size(81, 21);
+            this.textBox_time.TabIndex = 7;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(8, 27);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(173, 12);
+            this.label3.TabIndex = 6;
+            this.label3.Text = "设置开门时间长度(秒,01至FF):";
+            // 
+            // button_remoteOpen
+            // 
+            this.button_remoteOpen.Location = new System.Drawing.Point(194, 165);
+            this.button_remoteOpen.Name = "button_remoteOpen";
+            this.button_remoteOpen.Size = new System.Drawing.Size(58, 23);
+            this.button_remoteOpen.TabIndex = 15;
+            this.button_remoteOpen.Text = "确定";
+            this.button_remoteOpen.UseVisualStyleBackColor = true;
+            this.button_remoteOpen.Click += new System.EventHandler(this.button_remoteOpen_Click);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(6, 168);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(59, 12);
+            this.label5.TabIndex = 14;
+            this.label5.Text = "远程开门:";
+            // 
+            // comboBox_remoteOpen
+            // 
+            this.comboBox_remoteOpen.FormattingEnabled = true;
+            this.comboBox_remoteOpen.Location = new System.Drawing.Point(67, 165);
+            this.comboBox_remoteOpen.Name = "comboBox_remoteOpen";
+            this.comboBox_remoteOpen.Size = new System.Drawing.Size(114, 20);
+            this.comboBox_remoteOpen.TabIndex = 16;
+            // 
+            // button_update
+            // 
+            this.button_update.Location = new System.Drawing.Point(194, 221);
+            this.button_update.Name = "button_update";
+            this.button_update.Size = new System.Drawing.Size(58, 23);
+            this.button_update.TabIndex = 19;
+            this.button_update.Text = "确定";
+            this.button_update.UseVisualStyleBackColor = true;
+            this.button_update.Visible = false;
+            this.button_update.Click += new System.EventHandler(this.button_update_Click);
+            // 
+            // textBox_update
+            // 
+            this.textBox_update.Location = new System.Drawing.Point(6, 221);
+            this.textBox_update.Name = "textBox_update";
+            this.textBox_update.Size = new System.Drawing.Size(182, 21);
+            this.textBox_update.TabIndex = 18;
+            this.textBox_update.Visible = false;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(9, 206);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(83, 12);
+            this.label6.TabIndex = 17;
+            this.label6.Text = "升级文件路径:";
+            this.label6.Visible = false;
             // 
             // Form1
             // 
@@ -370,6 +438,12 @@
         private System.Windows.Forms.Button button_setOpenTime;
         private System.Windows.Forms.TextBox textBox_openTime;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Button button_remoteOpen;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Button button_update;
+        private System.Windows.Forms.TextBox textBox_update;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.ComboBox comboBox_remoteOpen;
     }
 }
 

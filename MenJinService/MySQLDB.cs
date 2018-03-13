@@ -6,10 +6,11 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using MySql.Data.MySqlClient;
+using MenJinService;
 
 public class  MySQLDB
 {
-    public static log4net.ILog Log = log4net.LogManager.GetLogger(typeof(MySQLDB));
+    //public static log4net.ILog Log = log4net.LogManager.GetLogger(typeof(MySQLDB));
 
     public static string m_strConn { get; set; }
     //   public static OperationTxT oper = new OperationTxT(@"D:\\ShopServiceLog.txt");
@@ -143,7 +144,7 @@ public class  MySQLDB
         catch (System.Exception ex)
         {
             conn_single.Close();
-            Log.Debug(ex);
+            UtilClass.writeLog(ex.ToString());
             return null;
         }
 
@@ -241,7 +242,7 @@ public class  MySQLDB
         catch (System.Exception ex)
         {
             conn_single.Close();
-            Log.Debug(ex);
+            UtilClass.writeLog(ex.ToString());
             return null;
         }
 
@@ -280,7 +281,7 @@ public class  MySQLDB
         catch (System.Exception ex)
         {
             conn_single.Close();
-            Log.Debug(ex);
+            UtilClass.writeLog(ex.ToString());
             return null;
         }
 
@@ -326,7 +327,7 @@ public class  MySQLDB
         catch (System.Exception ex)
         {
             conn_single.Close();
-            Log.Debug(ex);
+            UtilClass.writeLog(ex.ToString());
             //oper.opertxt(System.DateTime.Now + ex.Message);
             return false;
         }
@@ -410,7 +411,7 @@ public class  MySQLDB
         catch (System.Exception ex)
         {
             conn_single.Close();
-            Log.Debug(ex);
+            UtilClass.writeLog(ex.ToString());
             //oper.opertxt(System.DateTime.Now + ex.Message);
             return ex.Message;
            //return "-1";
