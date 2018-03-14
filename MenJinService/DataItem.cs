@@ -867,7 +867,9 @@ namespace MenJinService
                 Console.WriteLine(ex);
                 UtilClass.writeLog(ex.ToString());
             }
-            Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "硬件"+strID+"收到数据："+UtilClass.byteToHexStr(datagramBytes));
+#if DEBUG
+            UtilClass.writeLog(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "硬件"+strID+"收到数据："+UtilClass.byteToHexStr(datagramBytes));
+#endif
         }
 
         /// <summary>
@@ -878,7 +880,9 @@ namespace MenJinService
         {
             try
             {
-                Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "硬件" + strID + "发送数据：" + UtilClass.byteToHexStr(cmd));
+#if DEBUG
+                UtilClass.writeLog(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "硬件" + strID + "发送数据：" + UtilClass.byteToHexStr(cmd));
+#endif
                 socket.BeginSendTo(cmd, 0, cmd.Length, SocketFlags.None, remote, new AsyncCallback(OnSend), socket);
             }
             catch (Exception ex)

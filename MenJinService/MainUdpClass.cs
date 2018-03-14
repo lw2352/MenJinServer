@@ -277,6 +277,22 @@ namespace MenJinService
                     string[,] cmdStrings = DbClass.readCmd();
                     if (cmdStrings != null)//先判定是否为空
                     {
+                        //add 3-14,强制处理一次数据，缩减时间，避免等待
+                        byte[] Cmd = new byte[13];
+                        Cmd[0] = 0xA5;
+                        Cmd[1] = 0xA5;
+                        Cmd[2] = 0x00;
+                        Cmd[3] = 0x00;
+                        Cmd[4] = 0x00;
+                        Cmd[5] = 0x00;
+                        Cmd[6] = 0x00;
+                        Cmd[7] = 0x00;
+                        Cmd[8] = 0x00;
+                        Cmd[9] = 0x00;
+                        Cmd[10 + 0] = 0xFF;
+                        Cmd[10 + 1] = 0x5A;
+                        Cmd[10 + 2] = 0x5A;
+
                         for (int i = 0; i < cmdStrings.Length / 4; i++)
                         {
                             if (htClient.ContainsKey(cmdStrings[i, 0]))
@@ -288,6 +304,8 @@ namespace MenJinService
                                     //先清空表的记录，再采集新纪录
                                     DbClass.deleteHistory(dataItem.strID);
                                     dataItem.tHistory.IsNeedHistory = true;
+                                    //add 3-14,强制处理一次数据，缩减时间，避免等待
+                                    dataItem.recDataQueue.Enqueue(Cmd); //Enqueue 将对象添加到 Queue<T> 的结尾处
                                 }
                                 else if (cmdStrings[i, 1] == "update")
                                 {
@@ -323,6 +341,8 @@ namespace MenJinService
                                         dataItem.tGeneralCardId.rw = 0;
                                         dataItem.tGeneralCardId.IsNeedSet = true;
                                     }
+                                    //add 3-14,强制处理一次数据，缩减时间，避免等待
+                                    dataItem.recDataQueue.Enqueue(Cmd); //Enqueue 将对象添加到 Queue<T> 的结尾处
                                 }
                                 else if (cmdStrings[i, 1] == "fingerID")
                                 {
