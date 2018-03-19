@@ -45,7 +45,7 @@ namespace MenJinService
         //处理发送数据线程，把数据哈希表中的数据复制到各个dataItem中的发送队列
         //private ManualResetEvent checkSendDataQueueResetEvent = new ManualResetEvent(true);
 
-        private ManualResetEvent CheckDataBaseQueueResetEvent = new ManualResetEvent(true);
+        private ManualResetEvent checkDataBaseQueueResetEvent = new ManualResetEvent(true);
 
         /// <summary>
         /// 初始化
@@ -149,7 +149,7 @@ namespace MenJinService
                 
                 checkRecDataQueueResetEvent.WaitOne();
                 //checkSendDataQueueResetEvent.WaitOne();
-                CheckDataBaseQueueResetEvent.WaitOne();
+                checkDataBaseQueueResetEvent.WaitOne();
 
                 ServerSocket.Dispose();
 
@@ -234,6 +234,7 @@ namespace MenJinService
                         dataItem.HandleData();
 
                         dataItem.SendData();
+                        
                         if (CheckTimeout(dataItem.HeartTime, maxTimeOut) && dataItem.status == true)
                         {
                             dataItem.status = false;
@@ -255,7 +256,8 @@ namespace MenJinService
         //读取数据库命令线程
         public void CheckDataBaseQueue(object state)
         {
-
+            //add 3-17 粗心掉了一句
+            checkDataBaseQueueResetEvent.Reset(); //Reset()将事件状态设置为非终止状态，导致线程阻止。
             while (IsServerOpen)
             {
                 try
@@ -381,7 +383,7 @@ namespace MenJinService
                 Thread.Sleep(checkDataBaseQueueTimeInterval);
             }
 
-            CheckDataBaseQueueResetEvent.Set();
+            checkDataBaseQueueResetEvent.Set();
         }
 
         #endregion

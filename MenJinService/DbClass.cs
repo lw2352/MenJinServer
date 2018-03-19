@@ -58,7 +58,7 @@ namespace MenJinService
                 };
                 parmss[0].Value = sensorintdeviceID;
                 parmss[1].Value = sensorloginTime;
-                parmss[2].Value = sensorStatus;
+                parmss[2].Value = sensorStatus;               
 
                 try
                 {
@@ -66,12 +66,28 @@ namespace MenJinService
 
                     if (IsDelSuccess != false)
                     {
+                        //add 3-19，根据龚的要求，新上线设备后，要一起添加id号到命令表
+                        strSQL = " insert into tcommand (deviceID) values" +
+                                 "(?sensorintdeviceID);";
+                        parmss = new MySqlParameter[]
+                        {
+                            new MySqlParameter("?sensorintdeviceID", MySqlDbType.VarChar)
+                        };
+                        parmss[0].Value = sensorintdeviceID;
+                        IsDelSuccess = MySQLDB.ExecuteNonQry(strSQL, parmss);
+                        if (IsDelSuccess == false)
+                        {
+                            return "fail";
+                        }
+
                         return "ok";
                     }
                     else
                     {
                         return "fail";
                     }
+
+                    
                 }
 
                 catch (Exception ex)
