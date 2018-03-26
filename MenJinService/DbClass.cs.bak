@@ -243,12 +243,8 @@ namespace MenJinService
                         }
 
                         //重置字段为-1,add3-5
-                        //3-24只修改对应ID的cmdName,不能全部修改，否则会把反馈信息“ok”覆盖掉！
-                        for (int i = 0; i < count; i++)
-                        {
-                            string strSQL2 = "UPDATE tcommand SET cmdName = '-1' WHERE deviceID=" + "\"" + ret[i,0].ToString() + "\"";
-                            ds1 = MySQLDB.SelectDataSet(strSQL2, null);
-                        }                        
+                        string strSQL2 ="UPDATE tcommand SET cmdName = '-1'";
+                        ds1 = MySQLDB.SelectDataSet(strSQL2, null);
 
                         return ret;
                     }
