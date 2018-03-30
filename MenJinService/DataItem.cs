@@ -132,8 +132,11 @@ namespace MenJinService
                             }
 
                             tHistory.currentNum++;//当前读取包数加1
-                            //写入数据库
-                            DbClass.UpdateCmd(strID, "data", UtilClass.hex2String[tHistory.currentNum]);
+                            //写入数据库,历史记录的包太多，除以8，避免超出byte范围
+                            if (tHistory.currentNum % 8 == 0)
+                            {
+                                DbClass.UpdateCmd(strID, "data", UtilClass.hex2String[tHistory.currentNum / 8]);
+                            }
 
                             if (tHistory.currentNum == maxHistoryPackage)//读到尾部了
                             {
@@ -171,6 +174,9 @@ namespace MenJinService
                                         dadaStrings[dataNum, 2] = "B";
                                     }
                                     dataNum++;//有效记录数
+                                    //写入数据库
+                                    DbClass.insertHistory(strID, dadaStrings, dataNum);
+                                    DbClass.UpdateCmd(strID, "cmdName", "ok");
                                 }
                                 else//停止读取,复位结构体成员
                                 {
@@ -180,9 +186,7 @@ namespace MenJinService
                                     break;
                                 }
                             }//end of for
-                            //写入数据库
-                            DbClass.insertHistory(strID, dadaStrings, dataNum);
-                            DbClass.UpdateCmd(strID, "cmdName", "ok");
+                            
                         }
                         break;
 
