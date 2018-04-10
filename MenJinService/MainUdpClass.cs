@@ -56,6 +56,8 @@ namespace MenJinService
             //byte[] a = UtilClass.hexStrToByte("789132");
             //DateTime dt = new DateTime((byte)17, 4, 1, 13, 16, 0, 0);
             MySQLDB.m_strConn = System.Configuration.ConfigurationManager.AppSettings["ServerDB"];
+            //test
+            //DbClass.addOneHistory("123456", DateTime.Now.ToString("yyyy-MM-dd"), DateTime.Now.ToString("HH:mm:ss"), null, null);
         }
 
         #region topshelf服务会调用的函数

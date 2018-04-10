@@ -484,6 +484,189 @@ namespace MenJinService
             }
         }
 
+        public static string addOneHistory(string cardID, string sensorDate, string sensorTime, string[] timeTable, string[] typeTable)
+        {
+            #region 变量
+            //预设时间点
+            timeTable = new string[4];
+            timeTable[0] = "08:00:00";
+            timeTable[1] = "08:15:00";
+            timeTable[2] = "17:15:00";
+            timeTable[3] = "17:30:00";
+
+            typeTable = new string[5];
+            typeTable[0] = "上班";
+            typeTable[1] = "迟到";
+            typeTable[2] = "旷工";
+            typeTable[3] = "早退";
+            typeTable[4] = "下班";
+            string type="";
+
+            MySQLDB.InitDb();
+            string sensorid = "0";
+            string strResult = "";
+            MySqlParameter[] parmss = null;
+            string strSQL = "";
+            bool IsDelSuccess = false;
+            #endregion
+            //从数据库中查找当前ID是否存在
+            try
+            {
+                DataSet ds1 = new DataSet("historyrecord");
+                if (sensorTime.CompareTo("12:00:00") <= 0)
+                {
+                    strSQL = "SELECT date_time FROM historyrecord where (card_id=" + "\"" + cardID +
+                             "\" AND data_date=" + sensorDate + ")";
+                    ds1 = MySQLDB.SelectDataSet(strSQL, null);
+                    if (ds1 != null) // 有数据集
+                    {
+                        if (ds1.Tables[0].Rows.Count == 0) //判断数据库有没有数据，小于就直接插入，有就不管，肯定小于当前时间
+                        {
+                            if (sensorTime.CompareTo(timeTable[0]) < 0)
+                            {
+                                type = typeTable[0];
+                            }
+                            else if (sensorTime.CompareTo(timeTable[0]) > 0 && sensorTime.CompareTo(timeTable[1]) < 0)
+                            {
+                                type = typeTable[1];
+                            }
+                            else if (sensorTime.CompareTo(timeTable[1]) > 0 && sensorTime.CompareTo(timeTable[2]) < 0)
+                            {
+                                type = typeTable[2];
+                            }
+
+                            strSQL = " insert into historyrecord (card_id, data_date, date_time, type) values" +
+                                     "(?cardID,?sensorDate,?sensorTime,?type);";
+
+                            parmss = new MySqlParameter[]
+                            {
+                                new MySqlParameter("?cardID", MySqlDbType.VarChar),
+                                new MySqlParameter("?sensorDate", MySqlDbType.VarChar),
+                                new MySqlParameter("?sensorTime", MySqlDbType.VarChar),
+                                new MySqlParameter("?type", MySqlDbType.VarChar)
+                            };
+                            parmss[0].Value = cardID;
+                            parmss[1].Value = sensorDate;
+                            parmss[2].Value = sensorTime;
+                            parmss[3].Value = type;
+
+                            IsDelSuccess = MySQLDB.ExecuteNonQry(strSQL, parmss);
+
+                            if (IsDelSuccess != false)
+                            {
+                                return "ok";
+                            }
+                            else
+                            {
+                                return "fail";
+                            }
+                        }
+                    } //end if if (ds1 != null)
+                }
+                else//大于12点
+                {
+                    strSQL = "SELECT id FROM historyrecord where (card_id=" + "\"" + cardID + "\""+ "AND data_date=" + "\"" + sensorDate+ "\"" + " AND date_time>'12:00:00'"+") ";
+                    ds1 = MySQLDB.SelectDataSet(strSQL, null);
+                    if (ds1 != null) // 有数据集
+                    {
+                        if (ds1.Tables[0].Rows.Count == 0) //判断数据库有没有数据，小于就直接插入，有就要更新
+                        {
+                            if (sensorTime.CompareTo(timeTable[1]) > 0 && sensorTime.CompareTo(timeTable[2]) < 0)
+                            {
+                                type = typeTable[2];
+                            }
+                            else if (sensorTime.CompareTo(timeTable[2]) > 0 && sensorTime.CompareTo(timeTable[3]) < 0)
+                            {
+                                type = typeTable[3];
+                            }
+                            else if (sensorTime.CompareTo(timeTable[3]) > 0)
+                            {
+                                type = typeTable[4];
+                            }
+
+                            strSQL = " insert into historyrecord (card_id, data_date, date_time, type) values" +
+                                     "(?cardID,?sensorDate,?sensorTime,?type);";
+
+                            parmss = new MySqlParameter[]
+                            {
+                                new MySqlParameter("?cardID", MySqlDbType.VarChar),
+                                new MySqlParameter("?sensorDate", MySqlDbType.VarChar),
+                                new MySqlParameter("?sensorTime", MySqlDbType.VarChar),
+                                new MySqlParameter("?type", MySqlDbType.VarChar)
+                            };
+                            parmss[0].Value = cardID;
+                            parmss[1].Value = sensorDate;
+                            parmss[2].Value = sensorTime;
+                            parmss[3].Value = type;
+
+                            IsDelSuccess = MySQLDB.ExecuteNonQry(strSQL, parmss);
+
+                            if (IsDelSuccess != false)
+                            {
+                                return "ok";
+                            }
+                            else
+                            {
+                                return "fail";
+                            }
+                        }
+                        else//进行更新操作
+                        {
+                            if (sensorTime.CompareTo(timeTable[1]) > 0 && sensorTime.CompareTo(timeTable[2]) < 0)
+                            {
+                                type = typeTable[2];
+                            }
+                            else if (sensorTime.CompareTo(timeTable[2]) > 0 && sensorTime.CompareTo(timeTable[3]) < 0)
+                            {
+                                type = typeTable[3];
+                            }
+                            else if (sensorTime.CompareTo(timeTable[3]) > 0)
+                            {
+                                type = typeTable[4];
+                            }
+
+                            strSQL = " update historyrecord SET date_time=?sensorTime, type=?type WHERE (card_id=" + "\"" + cardID +
+                                     "\" AND data_date=" + "\""+ sensorDate+ "\"" +")";
+
+                            parmss = new MySqlParameter[]
+                            {
+                                new MySqlParameter("?cardID", MySqlDbType.VarChar),
+                                new MySqlParameter("?sensorDate", MySqlDbType.VarChar),
+                                new MySqlParameter("?sensorTime", MySqlDbType.VarChar),
+                                new MySqlParameter("?type", MySqlDbType.VarChar)
+                            };
+                            parmss[0].Value = cardID;
+                            parmss[1].Value = sensorDate;
+                            parmss[2].Value = sensorTime;
+                            parmss[3].Value = type;
+
+                            IsDelSuccess = MySQLDB.ExecuteNonQry(strSQL, parmss);
+
+                            if (IsDelSuccess != false)
+                            {
+                                return "ok";
+                            }
+                            else
+                            {
+                                return "fail";
+                            }
+                        }
+                    } //end if if (ds1 != null)
+                }
+                return "fail";
+            }
+
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                UtilClass.writeLog(ex.ToString());
+                return "fail"; //数据库异常
+            }
+
+        }
+
+        
+
 
     }
 }

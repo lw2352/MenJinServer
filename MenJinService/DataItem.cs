@@ -794,9 +794,10 @@ namespace MenJinService
                     #region 重置参数、远程开门、报警消息、当前刷卡号
                     case 0x06:
                         string door = "-1";
-                        DbClass.UpdateSensorInfo(strID, "cardID_now",
-                            UtilClass.hex2String[datagramBytes[10]] + UtilClass.hex2String[datagramBytes[11]] +
-                            UtilClass.hex2String[datagramBytes[12]]);
+                        string cardID = UtilClass.hex2String[datagramBytes[10]] +
+                                        UtilClass.hex2String[datagramBytes[11]] +
+                                        UtilClass.hex2String[datagramBytes[12]];
+                        DbClass.UpdateSensorInfo(strID, "cardID_now", cardID);
                         //门号, 高四位表示门号
                         if (datagramBytes[7] == 0x00)
                         {
@@ -807,6 +808,8 @@ namespace MenJinService
                             door = "B";
                         }
                         DbClass.UpdateSensorInfo(strID, "door_now", door);
+                        //add 4-10 根据龚的要求，添加数据到考勤表，并做判断
+                        DbClass.addOneHistory(cardID, DateTime.Now.ToString("yyyy-MM-dd"), DateTime.Now.ToString("HH:mm:ss"), null, null);
                         break;
 
                     case 0x22:
