@@ -51,7 +51,7 @@ namespace MenJinService
 
 
                 #region 启动类型  
-                x.StartAutomatically();//自动运行  
+                x.StartAutomaticallyDelayed();//自动运行  
                                        //x.StartManually();//手动运行  
                                        //x.StartAutomaticallyDelayed();//自动延迟运行  
                                        //x.Disabled();//禁用  

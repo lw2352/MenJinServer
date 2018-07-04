@@ -25,7 +25,7 @@ namespace MenJinService
         private static Hashtable htClient = new Hashtable(); //strID--DataItem
 
         private static Socket ServerSocket;//用于接收
-        private static Socket SendSocket;//用于发送
+        //private static Socket SendSocket;//用于发送
         public static byte[] buffer = new byte[1024 + 13];//socket缓冲区
 
         private static int checkRecDataQueueTimeInterval = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["checkRecDataQueueTimeInterval"]); // 检查接收数据包队列时间休息间隔(ms)
